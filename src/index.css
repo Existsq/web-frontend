@@ -1,11 +1,54 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Noto Sans", sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #213547;
+  background-color: #ffffff;
+
+  --font-family-base: "Noto Sans", sans-serif;
+  --font-family-alt: "Noto Sans", sans-serif;
+
+  --color-bg: #ffffff;
+  --color-text: #000000;
+  --color-accent: #586179;
+  --color-border: #DCDDE3;
+  --color-search-bg: #E8EDF1;
+  --color-search-text: #757575;
+
+  --color-text-primary: #101D40;
+  --color-text-secondary: #586179;
+  --color-bg-card: #FFF;
+  --color-button-border: #E8EDF1;
+
+  --header-height: 80px;
+  --header-padding-x: 80px;
+  --search-padding: 64px 80px 32px 80px;
+  --search-container-height: 52px;
+  --search-container-min-width: 500px;
+  --gap-section: 32px;
+  --border-radius: 4px;
+
+  --card-height: 426px;
+  --card-aside-width: 288px;
+  --card-width: 288px;
+  --card-padding: 24px;
+  --card-gap: 24px;
+  --card-index-size: 44px;
+  --card-index-padding: 13px;
+  --card-button-height: 44px;
+  --card-button-padding: 13px;
+  --card-image-height: 205px;
+
+  --font-size-title: 20px;
+  --font-size-text: 14px;
+  --font-size-meta: 12px;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,23 +56,38 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+html {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
+  height: 100%;
+  width: 100%;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: var(--font-family-base);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+
+a:hover {
+  color: #747bff;
+}
+
+button {
+  background-color: #f9f9f9;
 }
