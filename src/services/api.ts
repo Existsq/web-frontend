@@ -1,4 +1,4 @@
-import type { Category } from '../types';
+import type { CartIconProps, Category } from '../types';
 
 const API_BASE_URL = '/api';
 
@@ -9,21 +9,21 @@ const mockCategories: Category[] = [
     title: 'Healthcare Services',
     shortDescription: 'Medical and health-related services',
     basePrice: 5000,
-    imageId: 'healthcare',
+    imageUUID: 'healthcare',
   },
   {
     id: 2,
     title: 'Education Services',
     shortDescription: 'Educational and training services',
     basePrice: 3000,
-    imageId: 'education',
+    imageUUID: 'education',
   },
   {
     id: 3,
     title: 'Transportation Services',
     shortDescription: 'Public and private transportation',
     basePrice: 2500,
-    imageId: 'transport',
+    imageUUID: 'transport',
   },
 ];
 
@@ -92,5 +92,26 @@ export async function fetchCategory(id: string | number): Promise<Category | nul
     const categoryId = typeof id === 'string' ? parseInt(id, 10) : id;
     const category = mockCategories.find(cat => cat.id === categoryId);
     return category || null;
+  }
+}
+
+export async function getCalculateCpiDraftInfo(): Promise<CartIconProps | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/calculate-cpi/draft-info`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.warn('Failed to fetch calculate cpi draft info from backend, using mock data:', error);
+    return null;
   }
 }

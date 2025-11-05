@@ -1,41 +1,101 @@
-import { Link } from 'react-router-dom';
-import { Button, Badge } from 'react-bootstrap';
-import type { CartIconProps } from '../../types';
-import './CartIcon.css';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Button, Badge } from "react-bootstrap";
+import "./CartIcon.css";
+import { getCalculateCpiDraftInfo } from "../../services/api";
 
-function CartIcon({ count, calculateCpiId }: CartIconProps) {
+function CartIcon() {
+  const [cartInfo, setCartInfo] = useState<{
+    count: number;
+    calculateCpiId: number | null;
+  }>({ count: 0, calculateCpiId: null });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCartInfo = async () => {
+      setLoading(true);
+      try {
+        const data = await getCalculateCpiDraftInfo();
+        setCartInfo({
+          count: data?.count ?? 0,
+          calculateCpiId: data?.calculateCpiId ?? null,
+        });
+      } catch (error) {
+        console.warn("Failed to load cart info:", error);
+        setCartInfo({ count: 0, calculateCpiId: null });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCartInfo();
+  }, []);
+
   const cartIconSvg = (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+    >
       <path
-        d="M12.8 12.8C13.2243 12.8 13.6313 12.9686 13.9314 13.2686C14.2314 13.5687 14.4 13.9757 14.4 14.4C14.4 14.8243 14.2314 15.2313 13.9314 15.5314C13.6313 15.8314 13.2243 16 12.8 16C12.3757 16 11.9687 15.8314 11.6686 15.5314C11.3686 15.2313 11.2 14.8243 11.2 14.4C11.2 13.512 11.912 12.8 12.8 12.8ZM0 0H2.616L3.368 1.6H15.2C15.4122 1.6 15.6157 1.68429 15.7657 1.83431C15.9157 1.98434 16 2.18783 16 2.4C16 2.536 15.96 2.672 15.904 2.8L13.04 7.976C12.768 8.464 12.24 8.8 11.64 8.8H5.68L4.96 10.104L4.936 10.2C4.936 10.253 4.95707 10.3039 4.99458 10.3414C5.03209 10.3789 5.08296 10.4 5.136 10.4H14.4V12H4.8C4.37565 12 3.96869 11.8314 3.66863 11.5314C3.36857 11.2313 3.2 10.8243 3.2 10.4C3.2 10.12 3.272 9.856 3.392 9.632L4.48 7.672L1.6 1.6H0V0ZM4.8 12.8C5.22435 12.8 5.63131 12.9686 5.93137 13.2686C6.23143 13.5687 6.4 13.9757 6.4 14.4C6.4 14.8243 6.23143 15.2313 5.93137 15.5314C5.63131 15.8314 5.22435 16 4.8 16C4.37565 16 3.96869 15.8314 3.66863 15.5314C3.36857 15.2313 3.2 14.8243 3.2 14.4C3.2 13.512 3.912 12.8 4.8 12.8ZM12 7.2L14.224 3.2H4.112L6 7.2H12Z"
+        d="M12.8 12.8C13.2243 12.8 13.6313 12.9686 13.9314 13.2686C14.2314 13.5687 14.4 13.9757 14.4 14.4C14.4 14.8243 14.2314 15.2313 13.9314 15.5314C13.6313 15.8314 13.2243 16 12.8 16C12.3757 16 11.9687 15.8314 11.6686 15.5314C11.3686 15.2313 11.2 14.8243 11.2 14.4C11.2 13.512 11.912 12.8 12.8 12.8ZM0 0H2.616L3.368 1.6H15.2C15.4122 1.6 15.6157 1.68429 15.7657 1.83431C15.9157 1.98434 16 2.18783 16 2.4C16 2.536 15.96 2.672 15.904 2.8L13.04 7.976C12.768 8.464 12.24 8.8 11.64 8.8H5.68L4.96 10.104L4.936 10.2C4.936 10.253 4.95707 10.3039 4.99458 10.3414C5.03209 10.3789 5.08296 10.4 5.136 10.4H14.4V12H4.8C4.37565 12 3.96869 11.8314 3.66863 11.5314C3.36857 11.2313 3.2 10.8243 3.2 10.4C3.2 10.12 3.272 9.856 3.392 9.632L4.48 7.672L1.6 1.6H0V0ZM4.8 12.8C5.22435 12.8 5.63131 12.9686 5.93137 13.2686C6.23143 13.5687 6.4 13.9757 6.4 14.4C6.4 14.8243 6.23143 15.2313 5.93137 15.5314C5.63131 15.8314 5.22435 16 4.8 16C3.96869 15.8314 3.36863 15.5314 3.2 14.4C3.2 13.512 3.912 12.8 4.8 12.8ZM12 7.2L14.224 3.2H4.112L6 7.2H12Z"
         fill="currentColor"
       />
     </svg>
   );
 
-  if (count > 0 && calculateCpiId) {
+  if (loading) {
+    // Пока данные загружаются — можно показывать серый значок или "0"
     return (
-      <Button 
-        as={Link} 
-        to={`/calculate-cpi/${calculateCpiId}`} 
-        variant="primary" 
-        className="cart-button position-relative"
-        style={{ width: '52px', height: '52px', padding: '18px' }}
+      <Button
+        variant="light"
+        disabled
+        className="cart-button-empty"
+        style={{
+          width: "52px",
+          height: "52px",
+          padding: "18px",
+          backgroundColor: "#E8EDF1",
+        }}
       >
         {cartIconSvg}
-        <Badge bg="primary" className="position-absolute top-0 start-100 translate-middle rounded-pill border border-white">
-          {count}
+      </Button>
+    );
+  }
+
+  if (cartInfo.count > 0 && cartInfo.calculateCpiId) {
+    return (
+      <Button
+        as={Link}
+        to={`/calculate-cpi/${cartInfo.calculateCpiId}`}
+        variant="primary"
+        className="cart-button position-relative"
+        style={{ width: "52px", height: "52px", padding: "18px" }}
+      >
+        {cartIconSvg}
+        <Badge
+          bg="primary"
+          className="position-absolute top-0 start-100 translate-middle rounded-pill border border-white"
+        >
+          {cartInfo.count}
         </Badge>
       </Button>
     );
   }
 
   return (
-    <Button 
-      variant="light" 
-      disabled 
+    <Button
+      variant="light"
+      disabled
       className="cart-button-empty"
-      style={{ width: '52px', height: '52px', padding: '18px', backgroundColor: '#E8EDF1' }}
+      style={{
+        width: "52px",
+        height: "52px",
+        padding: "18px",
+        backgroundColor: "#E8EDF1",
+      }}
     >
       {cartIconSvg}
     </Button>
@@ -43,4 +103,3 @@ function CartIcon({ count, calculateCpiId }: CartIconProps) {
 }
 
 export default CartIcon;
-

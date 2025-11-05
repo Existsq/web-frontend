@@ -9,7 +9,7 @@ export interface SearchBarProps {
 
 export interface CartIconProps {
   count: number;
-  calculateCpiId?: string | number;
+  calculateCpiId?: number;
 }
 
 export interface CategoryCardProps {
