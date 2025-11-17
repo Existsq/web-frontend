@@ -28,7 +28,7 @@
   font-family: var(--font-family-base);
   font-size: 48px;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: white;
   margin: 0;
   line-height: 1.2;
 }
@@ -37,7 +37,7 @@
   font-family: var(--font-family-base);
   font-size: 18px;
   font-weight: 400;
-  color: var(--color-text-secondary);
+  color: white;
   line-height: 1.6;
   margin: 0;
   max-width: 600px;
