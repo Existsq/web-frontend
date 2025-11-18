@@ -68,7 +68,8 @@ function CartIcon() {
   if (cartInfo.count > 0 && cartInfo.calculateCpiId) {
     return (
       <Button
-        as={Link}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        as={Link as any}
         to={`/calculate-cpi/${cartInfo.calculateCpiId}`}
         variant="primary"
         className="cart-button position-relative"
