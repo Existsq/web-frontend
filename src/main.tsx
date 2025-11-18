@@ -12,7 +12,7 @@ import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
-    <BrowserRouter basename="/web-frontend/">
+    <BrowserRouter basename="/web-frontend">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/categories" element={<Categories />} />
