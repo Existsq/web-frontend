@@ -29,9 +29,9 @@ export default defineConfig({
         enabled: true,
       },
       manifest: {
-        name: "My App",
-        short_name: "App",
-        description: "My React + Redux App",
+        name: "Расчет ИПЦ",
+        short_name: "ИПЦ",
+        description: "Веб-приложение для расчета индекса потребительских цен",
         theme_color: "#ffffff",
         background_color: "#ffffff",
         display: "standalone",
@@ -50,7 +50,6 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // настройки кэша
         globPatterns: ["**/*.{js,css,html,png,svg}"],
       },
     }),
