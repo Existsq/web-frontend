@@ -11,7 +11,7 @@ import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
-    <BrowserRouter>
+    <BrowserRouter basename="/web-frontend">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/categories" element={<Categories />} />
