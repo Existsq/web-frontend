@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Container } from "react-bootstrap";
+import { useSelector } from "react-redux";
 import Header from "../components/layout/Header";
 import SearchBar from "../components/search/SearchBar";
 import CartIcon from "../components/cart/CartIcon";
 import CardsContainer from "../components/card/CardsContainer";
 import CategoryCard from "../components/card/CategoryCard";
-import { fetchCategories, getCalculateCpiDraftInfo } from "../services/api";
+import CategoryFilters from "../components/category/CategoryFilters";
+import { fetchCategories } from "../services/api";
 import type { Category } from "../types";
+import type { RootState } from "../store/store";
 import "./Categories.css";
 
 function Categories() {
@@ -18,6 +21,9 @@ function Categories() {
     searchParams.get("title") || ""
   );
 
+  const filters = useSelector((state: RootState) => state.filters);
+
+  // Загружаем категории с API
   useEffect(() => {
     const loadCategories = async () => {
       setLoading(true);
@@ -36,6 +42,20 @@ function Categories() {
     loadCategories();
   }, [searchParams]);
 
+  // Сортировка категорий в зависимости от фильтров
+  const filteredCategories = [...categories].sort((a, b) => {
+    if (filters.sortBy === "price") {
+      return filters.order === "asc"
+        ? a.basePrice - b.basePrice
+        : b.basePrice - a.basePrice;
+    } else {
+      return filters.order === "asc"
+        ? a.title.localeCompare(b.title)
+        : b.title.localeCompare(a.title);
+    }
+  });
+
+  // Обработка поиска
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (searchTitle) {
@@ -60,9 +80,14 @@ function Categories() {
         </Container>
       </div>
 
-      {loading ? null : categories.length > 0 ? (
+      <div className="d-flex flex-column align-items-start w-100 px-5">
+        <CategoryFilters />
+      </div>
+
+      {/* Карточки категорий */}
+      {loading ? null : filteredCategories.length > 0 ? (
         <CardsContainer>
-          {categories.map((category) => (
+          {filteredCategories.map((category) => (
             <CategoryCard key={category.id} category={category} />
           ))}
         </CardsContainer>
