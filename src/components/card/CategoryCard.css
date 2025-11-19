@@ -1,6 +1,6 @@
 .category-card {
   width: 100%;
-  max-width: 288px;
+  max-width: 100%;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   margin: 0 auto;
 }

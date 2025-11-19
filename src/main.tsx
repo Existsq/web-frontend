@@ -9,9 +9,17 @@ import Home from "./pages/Home";
 import Categories from "./pages/Categories";
 import CategoryDetail from "./pages/CategoryDetail";
 import "./index.css";
+import { useEffect } from "react";
 
-createRoot(document.getElementById("root")!).render(
-  <Provider store={store}>
+export function App() {
+  useEffect(() => {
+    const stop = registerSW();
+    return () => {
+      stop?.();
+    };
+  }, []);
+
+  return (
     <BrowserRouter basename="/web-frontend">
       <Routes>
         <Route path="/" element={<Home />} />
@@ -19,9 +27,11 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/categories/:id" element={<CategoryDetail />} />
       </Routes>
     </BrowserRouter>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(
+  <Provider store={store}>
+    <App />
   </Provider>
 );
-
-if ("serviceWorker" in navigator) {
-  registerSW();
-}

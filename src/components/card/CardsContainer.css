@@ -1,4 +1,6 @@
 .cards-container {
   flex: 1 0 0;
   padding-top: 32px;
+  padding-left: 60px;
+  padding-right: 60px;;
 }
