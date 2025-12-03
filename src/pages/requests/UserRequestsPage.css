@@ -1,0 +1,134 @@
+.requests-page-container {
+  max-width: 1200px;
+  padding-top: 32px;
+  padding-bottom: 40px;
+}
+
+.requests-page-header {
+  margin-bottom: 32px;
+}
+
+.requests-page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0;
+}
+
+.requests-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.requests-error-card,
+.requests-empty-card {
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon {
+  color: #6c757d;
+  opacity: 0.5;
+}
+
+.requests-table-wrapper {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.requests-table {
+  margin-bottom: 0;
+}
+
+.requests-table thead {
+  background-color: #f8f9fa;
+}
+
+.requests-table thead th {
+  font-weight: 600;
+  color: #212529;
+  border-bottom: 2px solid #dee2e6;
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.requests-table tbody td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.requests-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Адаптивность */
+@media (max-width: 991.98px) {
+  .requests-page-container {
+    padding-top: 28px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .requests-page-container {
+    padding-top: 24px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .requests-page-title {
+    font-size: 24px;
+  }
+
+  .requests-table {
+    font-size: 13px;
+  }
+
+  .requests-table thead th,
+  .requests-table tbody td {
+    padding: 8px 10px;
+  }
+
+  /* Скрываем менее важные колонки на мобильных */
+  .requests-table th:nth-child(2),
+  .requests-table td:nth-child(2),
+  .requests-table th:nth-child(5),
+  .requests-table td:nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .requests-page-container {
+    padding-top: 20px;
+  }
+
+  .requests-page-title {
+    font-size: 20px;
+  }
+
+  .requests-table {
+    font-size: 12px;
+  }
+
+  .requests-table thead th,
+  .requests-table tbody td {
+    padding: 6px 8px;
+  }
+
+  /* Скрываем ещё больше колонок */
+  .requests-table th:nth-child(6),
+  .requests-table td:nth-child(6) {
+    display: none;
+  }
+
+  .requests-table .btn-sm {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}

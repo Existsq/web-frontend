@@ -1,0 +1,653 @@
+.request-page-container {
+  max-width: 1200px;
+  padding-top: 32px;
+  padding-bottom: 40px;
+}
+
+.request-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  gap: 24px;
+}
+
+.request-page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 16px;
+}
+
+.request-page-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.request-meta-item {
+  font-size: 14px;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.request-page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.request-page-empty {
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.cpi-text-container {
+  margin-bottom: 32px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.cpi-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0;
+}
+
+.cpi-text span {
+  color: #156DF9;
+  font-weight: 700;
+}
+
+.order-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-bottom: 32px;
+}
+
+.ordered-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  align-self: stretch;
+}
+
+.number-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.number-text {
+  color: #101D40;
+  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: normal;
+  margin: 0;
+}
+
+.horizontal-card-container {
+  display: flex;
+  width: 100%;
+  max-width: 1002px;
+  height: 253px;
+  padding-right: 38px;
+  align-items: center;
+  gap: 36px;
+  border-radius: 4px;
+  border: 1px solid #DEE3E9;
+  background: #FFF;
+  overflow: hidden;
+}
+
+.horizontal-card-image-container {
+  display: flex;
+  width: 277.75px;
+  min-width: 277.75px;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  align-self: stretch;
+  border-radius: 3px 0 0 3px;
+  background: lightgray 50% / cover no-repeat;
+}
+
+.horizontal-card-content-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1 0 0;
+  align-self: stretch;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.horizontal-card-title-container {
+  display: flex;
+  width: 100%;
+  max-width: 230px;
+  justify-content: center;
+  align-items: center;
+  align-self: stretch;
+}
+
+.horizontal-card-title-container:hover {
+  cursor: pointer;
+}
+
+.horizontal-card-title-text {
+  flex: 1 0 0;
+  color: #101D40;
+  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: normal;
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.horizontal-card-description-container {
+  display: flex;
+  width: 200px;
+  max-width: 200px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+}
+
+.horizontal-card-description-text {
+  color: #586179;
+  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  flex: 1 0 0;
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.horizontal-card-index-container {
+  display: flex;
+  width: 56px;
+  height: 44px;
+  padding: 16px;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1/1;
+  border-radius: 4px;
+  border: 1px solid #E8EDF1;
+  background: #156DF9;
+  flex-shrink: 0;
+}
+
+.horizontal-card-index-text {
+  color: #FFF;
+  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin: 0;
+}
+
+.horizontal-card-input-container {
+  display: flex;
+  width: 107px;
+  height: 44px;
+  padding: 13px 50px 13px 13px;
+  justify-content: center;
+  align-items: center;
+  color: #586179;
+  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  outline: none;
+  border-radius: 4px;
+  border: 1px solid #DEE3E9;
+  background: #FFF;
+  text-align: left;
+}
+
+/* Убираем стрелки у input type="number" */
+.horizontal-card-input-container::-webkit-outer-spin-button,
+.horizontal-card-input-container::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.horizontal-card-input-container[type=number] {
+  -moz-appearance: textfield;
+}
+
+.horizontal-card-input-container:focus {
+  border-color: #156DF9;
+  box-shadow: 0 0 0 0.2rem rgba(21, 109, 249, 0.25);
+}
+
+.delete-icon-container {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  aspect-ratio: 1/1;
+  outline: none;
+  border: none;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.delete-icon-container:hover {
+  background-color: #fee;
+  opacity: 1;
+}
+
+.delete-icon-container:active {
+  background-color: #fdd;
+  transform: scale(0.95);
+}
+
+.delete-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: #dc3545;
+}
+
+.cart-buttons-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.horizontal-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.input-with-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-wrapper-with-label {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.horizontal-card-input-container {
+  padding-right: 50px;
+}
+
+.input-currency-label {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #586179;
+  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.horizontal-card-input-container.readonly {
+  cursor: default;
+  background-color: #f8f9fa;
+}
+
+.save-amount-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid #156DF9;
+  border-radius: 4px;
+  background-color: #156DF9;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.save-amount-btn:hover {
+  background-color: #0d5ed7;
+  border-color: #0d5ed7;
+}
+
+.save-amount-btn:active {
+  transform: scale(0.95);
+}
+
+.calculateCpi-button-container {
+  min-width: 200px;
+  font-weight: 600;
+  padding: 12px 24px;
+  background-color: #156DF9;
+  border-color: #156DF9;
+}
+
+.calculateCpi-button-container:hover {
+  background-color: #0d5ed7;
+  border-color: #0d5ed7;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .horizontal-card-container {
+    max-width: 100%;
+    padding-right: 20px;
+  }
+
+  .horizontal-card-image-container {
+    width: 200px;
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 992px) {
+  .ordered-container {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .number-container {
+    align-self: flex-start;
+  }
+
+  .horizontal-card-container {
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+    flex-direction: column;
+    padding-right: 0;
+    padding-bottom: 20px;
+  }
+
+  .horizontal-card-image-container {
+    width: 100%;
+    min-width: 100%;
+    height: 200px;
+    border-radius: 3px 3px 0 0;
+  }
+
+  .horizontal-card-content-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .horizontal-card-title-container {
+    max-width: 100%;
+  }
+
+  .horizontal-card-description-container {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .horizontal-card-index-container {
+    align-self: flex-start;
+  }
+
+  .horizontal-card-input-container {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .horizontal-card-actions {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .input-with-button {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .delete-icon-container {
+    align-self: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .request-page-header {
+    flex-direction: column;
+  }
+
+  .request-page-title {
+    font-size: 24px;
+  }
+
+  .horizontal-card-content-container {
+    gap: 12px;
+  }
+
+  .cart-buttons-wrapper {
+    justify-content: center;
+  }
+
+  .calculateCpi-button-container {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .input-with-button {
+    width: 100%;
+  }
+
+  .horizontal-card-input-container {
+    flex: 1;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .request-page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .order-grid {
+    gap: 16px;
+  }
+
+  .ordered-container {
+    flex-direction: column;
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .number-container {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .number-text {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .horizontal-card-container {
+    position: relative;
+    flex-direction: column;
+    height: auto;
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .horizontal-card-image-container {
+    width: 100%;
+    min-width: 100%;
+    height: 140px;
+    border-radius: 0;
+  }
+
+  .horizontal-card-content-container {
+    padding: 16px;
+    gap: 12px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .horizontal-card-title-container {
+    max-width: 100%;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .horizontal-card-title-text {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .horizontal-card-description-container {
+    display: none;
+  }
+
+  .horizontal-card-index-container {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: auto;
+    height: auto;
+    padding: 6px 10px;
+    border-radius: 16px;
+    background: #156DF9;
+    z-index: 1;
+  }
+
+  .horizontal-card-index-text {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .horizontal-card-actions {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin-top: 8px;
+    align-items: center;
+  }
+
+  .input-with-button {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .input-wrapper-with-label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .input-currency-label {
+    font-size: 14px;
+    right: 12px;
+  }
+
+  .horizontal-card-input-container {
+    flex: 1;
+    height: 44px;
+    padding: 12px 50px 12px 12px;
+    font-size: 15px;
+    min-width: 0;
+  }
+
+  .save-amount-btn {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .delete-icon-container {
+    width: 100%;
+    max-width: 300px;
+    height: 44px;
+    background-color: #fff5f5;
+    border: 1px solid #ffcccc;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .delete-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .cpi-text-container {
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+  }
+
+  .cpi-text {
+    font-size: 16px;
+  }
+
+  .request-page-title {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+
+  .request-meta-item {
+    font-size: 12px;
+  }
+
+  .request-page-header {
+    margin-bottom: 24px;
+  }
+}

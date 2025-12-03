@@ -1,16 +1,23 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Container, Row, Col } from 'react-bootstrap';
-import Header from '../components/layout/Header';
-import Breadcrumbs from '../components/layout/Breadcrumbs';
-import { fetchCategory } from '../services/api';
-import type { Category } from '../types';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import Header from '../../components/layout/Header';
+import Breadcrumbs from '../../components/layout/Breadcrumbs';
+import { api } from '../../api';
+import type { Category } from '../../types';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { addService } from '../../store/requestsSlice';
+import { getMockCategoryById } from '../../mocks/categories';
 import './CategoryDetail.css';
 
 function CategoryDetail() {
   const { id } = useParams<{ id: string }>();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { user } = useAppSelector((s) => s.auth);
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     const loadCategory = async () => {
@@ -21,11 +28,16 @@ function CategoryDetail() {
 
       setLoading(true);
       try {
-        const data = await fetchCategory(id);
-        setCategory(data);
+        // Пытаемся загрузить данные с API
+        const response = await api.api.findById(Number(id));
+        setCategory(response.data as Category);
       } catch (error) {
-        console.error('Error loading category:', error);
-        setCategory(null);
+        // При ошибке API используем моки данных
+        console.warn(`Не удалось загрузить категорию ${id} с API, используем моки данных:`, error);
+        const mockCategory = getMockCategoryById(id);
+        // Имитируем небольшую задержку для реалистичности
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        setCategory(mockCategory);
       } finally {
         setLoading(false);
       }
@@ -33,6 +45,24 @@ function CategoryDetail() {
 
     loadCategory();
   }, [id]);
+
+  const handleAddToDraft = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    if (!category) return;
+
+    setIsAdding(true);
+    try {
+      await dispatch(addService(category.id)).unwrap();
+    } catch (error) {
+      console.error('Failed to add category:', error);
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -74,6 +104,15 @@ function CategoryDetail() {
               <p className="text-muted">
                 {category.description || category.shortDescription}
               </p>
+              <Button
+                variant="primary"
+                size="lg"
+                className="mt-4"
+                onClick={handleAddToDraft}
+                disabled={isAdding}
+              >
+                {isAdding ? 'Добавление...' : 'Добавить в заявку'}
+              </Button>
             </div>
           </Col>
           <Col lg={5}>

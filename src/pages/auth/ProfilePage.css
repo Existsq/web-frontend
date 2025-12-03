@@ -1,0 +1,44 @@
+.profile-container {
+  padding-top: 100px;
+  padding-bottom: 40px;
+}
+
+.profile-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #212529;
+}
+
+/* Адаптивность */
+@media (max-width: 991.98px) {
+  .profile-container {
+    padding-top: 90px;
+  }
+
+  .profile-title {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .profile-container {
+    padding-top: 80px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .profile-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .profile-container {
+    padding-top: 76px;
+  }
+
+  .profile-title {
+    font-size: 22px;
+  }
+}
+
