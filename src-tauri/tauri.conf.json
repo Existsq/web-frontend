@@ -2,10 +2,10 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "frontend",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.hei.cpi-calculator",
   "build": {
-    "frontendDist": "../build",
-    "devUrl": "https://172.16.250.97:3000/web-frontend/",
+    "frontendDist": "../dist",
+    "devUrl": "https://192.168.0.228:3000/web-frontend/",
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build"
   },

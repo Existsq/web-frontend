@@ -5,7 +5,6 @@ import mkcert from "vite-plugin-mkcert";
 import fs from "fs";
 import path from "path";
 
-// https://vite.dev/config/
 export default defineConfig({
   server: {
     https: {
@@ -16,8 +15,33 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api": {
-        target: "http://172.16.250.97:8080",
+        target: "http://localhost:8080",
         changeOrigin: true,
+        secure: false,
+        cookieDomainRewrite: "",
+        cookiePathRewrite: "/",
+        configure: (proxy) => {
+            proxy.on("proxyReq", (proxyReq, req) => {
+            if (req.headers.cookie) {
+              proxyReq.setHeader("Cookie", req.headers.cookie);
+            }
+          });
+          proxy.on("proxyRes", (proxyRes) => {
+            const setCookieHeaders = proxyRes.headers["set-cookie"];
+            if (setCookieHeaders) {
+              const modifiedCookies = Array.isArray(setCookieHeaders)
+                ? setCookieHeaders.map((cookie) => {
+                    return cookie
+                      .replace(/Domain=[^;]+/gi, "")
+                      .replace(/Secure/gi, "Secure")
+                      .replace(/SameSite=None/gi, "SameSite=None");
+                  })
+                : setCookieHeaders;
+              
+              proxyRes.headers["Set-Cookie"] = modifiedCookies;
+            }
+          });
+        },
       },
     },
   },
@@ -55,5 +79,5 @@ export default defineConfig({
       },
     }),
   ],
-  base: "/web-frontend/",
+  base: process.env.TAURI_ENV_PLATFORM ? "./" : "/web-frontend/",
 });
