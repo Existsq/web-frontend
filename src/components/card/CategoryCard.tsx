@@ -1,6 +1,9 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, Button } from 'react-bootstrap';
 import type { CategoryCardProps } from '../../types';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { addService } from '../../store/requestsSlice';
 import './CategoryCard.css';
 
 function CategoryCard({ category }: CategoryCardProps) {
@@ -8,9 +11,28 @@ function CategoryCard({ category }: CategoryCardProps) {
   const imageUrl = category.imageUUID ? `${imageServerUrl}/categories/${category.imageUUID}.jpg` : undefined;
   const imageStyle = imageUrl ? { backgroundImage: `url(${imageUrl})` } : {};
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { user } = useAppSelector((s) => s.auth);
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleAddToDraft = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      await dispatch(addService(category.id)).unwrap();
+    } catch (error) {
+      console.error('Failed to add category:', error);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -22,15 +44,13 @@ function CategoryCard({ category }: CategoryCardProps) {
             <Card.Text className="text-muted small mb-0">{category.shortDescription}</Card.Text>
           </div>
           <div className="mt-auto">
-            <Card.Text className="text-muted small mb-2">
-              Базовая стоимость: {category.basePrice} руб.
+            <Card.Text className="text-muted small mb-3">
+              Базовая стоимость: <strong>{category.basePrice.toLocaleString('ru-RU')} руб.</strong>
             </Card.Text>
             <div
               className={`card-image ${!imageUrl ? 'card-image-placeholder' : ''}`}
               style={{
                 ...imageStyle,
-                height: '205px',
-                borderRadius: '4px',
                 backgroundSize: imageUrl ? 'cover' : undefined,
                 backgroundPosition: imageUrl ? 'center' : undefined
               }}
@@ -50,8 +70,13 @@ function CategoryCard({ category }: CategoryCardProps) {
         </Card.Body>
       </Link>
       <Card.Footer className="bg-transparent border-0">
-        <Button variant="outline-secondary" className="w-100" onClick={handleAddToCart}>
-          Добавить категорию
+        <Button
+          variant="outline-secondary"
+          className="w-100"
+          onClick={handleAddToDraft}
+          disabled={isAdding}
+        >
+          {isAdding ? 'Добавление...' : 'Добавить в заявку'}
         </Button>
       </Card.Footer>
     </Card>

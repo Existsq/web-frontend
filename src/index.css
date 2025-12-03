@@ -91,3 +91,22 @@ a:hover {
 button {
   background-color: #f9f9f9;
 }
+
+/* Адаптивные переменные */
+@media (max-width: 991.98px) {
+  :root {
+    --header-height: 70px;
+    --header-padding-x: 24px;
+    --card-width: 100%;
+    --card-gap: 16px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  :root {
+    --header-height: 60px;
+    --header-padding-x: 16px;
+    --font-size-title: 18px;
+    --font-size-text: 14px;
+  }
+}

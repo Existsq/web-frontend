@@ -1,35 +1,11 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button, Badge } from "react-bootstrap";
 import "./CartIcon.css";
-import { getCalculateCpiDraftInfo } from "../../services/api";
+import { useAppSelector } from "../../store/store";
+import { selectDraftInfo } from "../../store/requestsSlice";
 
 function CartIcon() {
-  const [cartInfo, setCartInfo] = useState<{
-    count: number;
-    calculateCpiId: number | null;
-  }>({ count: 0, calculateCpiId: null });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadCartInfo = async () => {
-      setLoading(true);
-      try {
-        const data = await getCalculateCpiDraftInfo();
-        setCartInfo({
-          count: data?.count ?? 0,
-          calculateCpiId: data?.calculateCpiId ?? null,
-        });
-      } catch (error) {
-        console.warn("Failed to load cart info:", error);
-        setCartInfo({ count: 0, calculateCpiId: null });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadCartInfo();
-  }, []);
+  const draftInfo = useAppSelector(selectDraftInfo);
 
   const cartIconSvg = (
     <svg
@@ -46,41 +22,22 @@ function CartIcon() {
     </svg>
   );
 
-  if (loading) {
-    // Пока данные загружаются — можно показывать серый значок или "0"
-    return (
-      <Button
-        variant="light"
-        disabled
-        className="cart-button-empty"
-        style={{
-          width: "52px",
-          height: "52px",
-          padding: "18px",
-          backgroundColor: "#E8EDF1",
-        }}
-      >
-        {cartIconSvg}
-      </Button>
-    );
-  }
-
-  if (cartInfo.count > 0 && cartInfo.calculateCpiId) {
+  if (draftInfo && draftInfo.countCategories && draftInfo.countCategories > 0) {
     return (
       <Button
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         as={Link as any}
-        to={`/calculate-cpi/${cartInfo.calculateCpiId}`}
+        to={`/calculate-cpi/${draftInfo.draftId}`}
         variant="primary"
         className="cart-button position-relative"
-        style={{ width: "52px", height: "52px", padding: "18px" }}
+        style={{ width: "44px", height: "44px", padding: "12px" }}
       >
         {cartIconSvg}
         <Badge
           bg="primary"
           className="position-absolute top-0 start-100 translate-middle rounded-pill border border-white"
         >
-          {cartInfo.count}
+          {draftInfo.countCategories}
         </Badge>
       </Button>
     );
@@ -92,9 +49,9 @@ function CartIcon() {
       disabled
       className="cart-button-empty"
       style={{
-        width: "52px",
-        height: "52px",
-        padding: "18px",
+        width: "44px",
+        height: "44px",
+        padding: "12px",
         backgroundColor: "#E8EDF1",
       }}
     >

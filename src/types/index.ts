@@ -2,7 +2,6 @@
 export type { Category } from './models';
 export type {
   SearchBarProps,
-  CartIconProps,
   CategoryCardProps,
   CardsContainerProps,
   BreadcrumbItem,

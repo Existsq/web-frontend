@@ -4,4 +4,40 @@
   align-items: center;
   justify-content: center;
   border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Мобильная версия - фиксированная круглая иконка */
+@media (max-width: 767.98px) {
+  .cart-button,
+  .cart-button-empty {
+    position: fixed !important;
+    bottom: 24px;
+    left: 24px;
+    z-index: 1000;
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 50% !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .cart-button {
+    background-color: #156DF9 !important;
+    border-color: #156DF9 !important;
+  }
+
+  .cart-button:hover {
+    background-color: #0d5ed7 !important;
+    border-color: #0d5ed7 !important;
+  }
+
+  .cart-button-empty {
+    background-color: #E8EDF1 !important;
+  }
+
+  .cart-button svg,
+  .cart-button-empty svg {
+    width: 20px;
+    height: 20px;
+  }
 }

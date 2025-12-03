@@ -1,5 +1,12 @@
+.search-form {
+  width: 60%;
+  max-width: 700px;
+  min-width: 300px;
+}
+
 .search-input-group {
-  min-width: 500px;
+  flex: 1;
+  min-width: 0;
   padding: 0;
 }
 
@@ -45,4 +52,38 @@
 .search-submit-button {
   white-space: nowrap;
   height: 44px;
+}
+
+/* Адаптивность */
+@media (max-width: 1199.98px) {
+  .search-form {
+    width: 55%;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .search-form {
+    width: 50%;
+    min-width: 280px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .search-form {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .search-submit-button {
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .search-input-group .form-control {
+    font-size: 16px; /* Предотвращает зум на iOS */
+  }
 }

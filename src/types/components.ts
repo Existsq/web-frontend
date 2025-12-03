@@ -7,11 +7,6 @@ export interface SearchBarProps {
   onSubmit: () => void;
 }
 
-export interface CartIconProps {
-  count: number;
-  calculateCpiId?: number;
-}
-
 export interface CategoryCardProps {
   category: Category;
   onAddToCart?: (categoryId: string | number) => void;

@@ -1,6 +1,6 @@
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { fetchCategory } from '../../services/api';
+import { api } from '../../api';
 import type { BreadcrumbItem } from '../../types';
 import './Breadcrumbs.css';
 
@@ -13,9 +13,9 @@ function Breadcrumbs() {
     if (params.id) {
       const loadCategoryTitle = async () => {
         try {
-          const category = await fetchCategory(params.id!);
-          if (category) {
-            setCategoryTitle(category.title);
+          const response = await api.api.findById(Number(params.id));
+          if (response.data) {
+            setCategoryTitle(response.data.title ?? null);
           }
         } catch (error) {
           console.error('Error loading category title for breadcrumbs:', error);

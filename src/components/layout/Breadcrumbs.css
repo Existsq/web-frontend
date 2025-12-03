@@ -55,3 +55,32 @@
   text-decoration: none;
 }
 
+/* Адаптивность */
+@media (max-width: 767.98px) {
+  .breadcrumbs-container {
+    padding: 12px 0;
+  }
+
+  .breadcrumbs-link,
+  .breadcrumbs-current,
+  .breadcrumbs-separator {
+    font-size: 14px;
+  }
+
+  .breadcrumbs-separator {
+    margin: 0 4px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .detailed-page-container .breadcrumbs-container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .breadcrumbs-link,
+  .breadcrumbs-current {
+    font-size: 13px;
+  }
+}
+

@@ -7,3 +7,38 @@
   display: flex;
   align-items: center;
 }
+
+.custom-navbar .navbar-nav {
+  gap: 24px;
+}
+
+.custom-navbar .nav-link {
+  padding: 10px 0 !important;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 991.98px) {
+  .custom-navbar .navbar-nav {
+    gap: 8px;
+    padding: 16px 0;
+  }
+
+  .custom-navbar .nav-link {
+    padding: 12px 0 !important;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .custom-navbar .nav-link:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .custom-navbar .container-fluid {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}

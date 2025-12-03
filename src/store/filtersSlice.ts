@@ -1,28 +1,32 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { logout } from "./authSlice";
 
-export type SortOrder = 'asc' | 'desc'
-export type SortBy = 'price' | 'alphabet'
+export type SortOrder = "asc" | "desc";
+export type SortBy = "price" | "alphabet";
 
 interface FiltersState {
-  sortBy: SortBy
-  order: SortOrder
+  sortBy: SortBy;
+  order: SortOrder;
 }
 
 const initialState: FiltersState = {
-  sortBy: 'price',
-  order: 'asc',
-}
+  sortBy: "price",
+  order: "asc",
+};
 
 const filtersSlice = createSlice({
-  name: 'filters',
+  name: "filters",
   initialState,
   reducers: {
     setFilters(state, action: PayloadAction<FiltersState>) {
-      state.sortBy = action.payload.sortBy
-      state.order = action.payload.order
+      state.sortBy = action.payload.sortBy;
+      state.order = action.payload.order;
     },
   },
-})
+  extraReducers: (builder) => {
+    builder.addCase(logout, () => initialState);
+  },
+});
 
-export const { setFilters } = filtersSlice.actions
-export default filtersSlice.reducer
+export const { setFilters } = filtersSlice.actions;
+export default filtersSlice.reducer;
