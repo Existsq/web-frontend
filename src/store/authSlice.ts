@@ -29,7 +29,6 @@ export const login = createAsyncThunk(
   "auth/login",
   async (data: UserCredentialsDTO) => {
     await api.api.login(data);
-    // Небольшая задержка, чтобы cookie успела установиться
     await new Promise((resolve) => setTimeout(resolve, 100));
     const response = await api.api.getCurrentUser();
     return response.data;
@@ -41,7 +40,6 @@ export const register = createAsyncThunk(
   "auth/register",
   async (data: UserCredentialsDTO) => {
     await api.api.register(data);
-    // Небольшая задержка, чтобы cookie успела установиться
     await new Promise((resolve) => setTimeout(resolve, 100));
     const response = await api.api.getCurrentUser();
     return response.data;
