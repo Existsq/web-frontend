@@ -9,8 +9,6 @@ import CategoryDetail from "./pages/categories/CategoryDetail";
 import "./index.css";
 import { useEffect } from "react";
 import { useAppDispatch } from "./store/store";
-import { getMe } from "./store/authSlice";
-import { loadDraft } from "./store/requestsSlice";
 import { PublicRoute } from "./components/auth/PublicRoute";
 import { PrivateRoute } from "./components/auth/PrivateRoute";
 import LoginPage from "./pages/auth/AuthPage";
@@ -21,11 +19,6 @@ import Header from "./components/layout/Header";
 
 export function App() {
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch(getMe());
-    dispatch(loadDraft());
-  }, [dispatch]);
 
   // Определяем basename для роутера (если приложение в подпапке)
   const basename = import.meta.env.TAURI_ENV_PLATFORM ? undefined : "/web-frontend";
