@@ -146,6 +146,33 @@ export default function RequestPage() {
     }
   };
 
+  const handleClearAll = async () => {
+    if (!requestId || !request?.categories || request.categories.length === 0) {
+      return;
+    }
+
+    try {
+      // Удаляем все категории по очереди
+      const categoriesToDelete = [...request.categories];
+      
+      for (const category of categoriesToDelete) {
+        if (category.id) {
+          try {
+            await dispatch(deleteDraftItem({ cpiId: requestId, categoryId: category.id })).unwrap();
+          } catch (error) {
+            console.error(`Failed to delete category ${category.id}:`, error);
+          }
+        }
+      }
+
+      // После удаления всех категорий черновик будет удален автоматически
+      // Редиректим на страницу категорий
+      navigate("/categories");
+    } catch (error) {
+      console.error("Failed to clear all items:", error);
+    }
+  };
+
   const imageServerUrl = import.meta.env.VITE_MINIO_BASE_URL || 'http://127.0.0.1:9000';
 
   // Локальное состояние для редактируемых значений
@@ -424,6 +451,15 @@ export default function RequestPage() {
 
             {!readOnly && requestId && (
               <div className="cart-buttons-wrapper">
+                <Button
+                  variant="danger"
+                  size="lg"
+                  onClick={handleClearAll}
+                  className="calculateCpi-button-container"
+                  disabled={!request?.categories || request.categories.length === 0}
+                >
+                  Очистить все
+                </Button>
                 <Button
                   variant="primary"
                   size="lg"

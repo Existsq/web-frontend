@@ -23,7 +23,8 @@
 }
 
 .requests-error-card,
-.requests-empty-card {
+.requests-empty-card,
+.requests-filters-card {
   border: 1px solid #e9ecef;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);

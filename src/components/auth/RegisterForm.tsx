@@ -1,4 +1,3 @@
-// src/components/auth/RegisterForm.tsx
 import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../store/store";

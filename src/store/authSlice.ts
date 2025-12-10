@@ -46,12 +46,6 @@ export const register = createAsyncThunk(
   }
 );
 
-// Get current user
-export const getMe = createAsyncThunk("auth/me", async () => {
-  const response = await api.api.getCurrentUser();
-  return response.data;
-});
-
 // Logout
 export const logoutAsync = createAsyncThunk(
   "auth/logoutAsync",
@@ -123,18 +117,6 @@ const authSlice = createSlice({
       .addCase(register.rejected, (s, a) => {
         s.loading = false;
         s.error = a.error.message || "Register failed";
-      })
-
-      .addCase(getMe.pending, (s) => {
-        s.initialized = false;
-      })
-      .addCase(getMe.fulfilled, (s, a) => {
-        s.user = a.payload;
-        s.initialized = true;
-      })
-      .addCase(getMe.rejected, (s) => {
-        s.user = null;
-        s.initialized = true;
       })
       // update profile
       .addCase(updateProfile.pending, (s) => {

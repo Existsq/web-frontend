@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Table, Badge, Container, Card } from "react-bootstrap";
+import { Table, Badge, Container, Card, Form, Row, Col } from "react-bootstrap";
 import Header from "../../components/layout/Header";
 import { useAppSelector } from "../../store/store";
 import { api } from "../../api";
@@ -36,11 +36,39 @@ const formatDate = (dateString?: string) => {
   }
 };
 
+// Функция для форматирования даты в формат YYYY-MM-DD для input type="date"
+const formatDateForInput = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+// Функция для получения начала дня
+const getStartOfDay = (date: Date): Date => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
+// Функция для получения конца дня
+const getEndOfDay = (date: Date): Date => {
+  const d = new Date(date);
+  d.setHours(23, 59, 59, 999);
+  return d;
+};
+
 export default function UserRequestsPage() {
   const { user } = useAppSelector((s) => s.auth);
   const [requests, setRequests] = useState<CalculateCpiDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Фильтры: по умолчанию сегодня-сегодня, статус - любой
+  const today = new Date();
+  const [dateFrom, setDateFrom] = useState<string>(formatDateForInput(today));
+  const [dateTo, setDateTo] = useState<string>(formatDateForInput(today));
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
   useEffect(() => {
     const loadRequests = async () => {
@@ -83,6 +111,43 @@ export default function UserRequestsPage() {
     loadRequests();
   }, [user]);
 
+  // Применяем фильтры к заявкам
+  const filteredRequests = useMemo(() => {
+    if (!requests.length) return [];
+
+    const fromDate = getStartOfDay(new Date(dateFrom));
+    const toDate = getEndOfDay(new Date(dateTo));
+
+    const filtered = requests.filter((request) => {
+      // Фильтр по дате
+      if (request.createdAt) {
+        const requestDate = new Date(request.createdAt);
+        if (requestDate < fromDate || requestDate > toDate) {
+          return false;
+        }
+      } else {
+        // Если нет даты создания, пропускаем
+        return false;
+      }
+
+      // Фильтр по статусу
+      if (statusFilter !== "ALL" && request.status !== statusFilter) {
+        return false;
+      }
+
+      return true;
+    });
+
+    // Применяем сортировку к отфильтрованным заявкам
+    return [...filtered].sort((a, b) => {
+      if (a.status === "DRAFT" && b.status !== "DRAFT") return -1;
+      if (a.status !== "DRAFT" && b.status === "DRAFT") return 1;
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+  }, [requests, dateFrom, dateTo, statusFilter]);
+
   if (!user) {
     return (
       <div className="main-page-container">
@@ -124,6 +189,45 @@ export default function UserRequestsPage() {
           </Card>
         )}
 
+        {!loading && !error && (
+          <Card className="requests-filters-card mb-4">
+            <Card.Body>
+              <Row className="g-3">
+                <Col md={4}>
+                  <Form.Label>С даты</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                  />
+                </Col>
+                <Col md={4}>
+                  <Form.Label>По дату</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                  />
+                </Col>
+                <Col md={4}>
+                  <Form.Label>Статус</Form.Label>
+                  <Form.Select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option value="ALL">Любой</option>
+                    <option value="DRAFT">Черновик</option>
+                    <option value="FORMED">Оформлен</option>
+                    <option value="COMPLETED">Завершен</option>
+                    <option value="REJECTED">Отклонен</option>
+                    <option value="DELETED">Удален</option>
+                  </Form.Select>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+        )}
+
         {!loading && !error && requests.length === 0 && (
           <Card className="requests-empty-card">
             <Card.Body className="text-center py-5">
@@ -152,22 +256,33 @@ export default function UserRequestsPage() {
         )}
 
         {!loading && !error && requests.length > 0 && (
-          <div className="requests-table-wrapper">
-            <Table striped bordered hover responsive className="requests-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>ID</th>
-                  <th>Статус</th>
-                  <th>Дата создания</th>
-                  <th>Категорий</th>
-                  <th>Сумма расходов</th>
-                  <th>Персональный CPI</th>
-                  <th>Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests.map((request, idx) => {
+          <>
+            {filteredRequests.length === 0 && (
+              <Card className="requests-empty-card mb-4">
+                <Card.Body className="text-center py-4">
+                  <p className="text-muted mb-0">
+                    Нет заявок, соответствующих выбранным фильтрам
+                  </p>
+                </Card.Body>
+              </Card>
+            )}
+            {filteredRequests.length > 0 && (
+              <div className="requests-table-wrapper">
+                <Table striped bordered hover responsive className="requests-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>ID</th>
+                      <th>Статус</th>
+                      <th>Дата создания</th>
+                      <th>Категорий</th>
+                      <th>Сумма расходов</th>
+                      <th>Персональный CPI</th>
+                      <th>Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredRequests.map((request, idx) => {
                   const totalSpent =
                     request.categories?.reduce(
                       (sum, cat) => sum + (cat.userSpent ?? 0),
@@ -212,10 +327,12 @@ export default function UserRequestsPage() {
                       </td>
                     </tr>
                   );
-                })}
-              </tbody>
-            </Table>
-          </div>
+                    })}
+                  </tbody>
+                </Table>
+              </div>
+            )}
+          </>
         )}
       </Container>
     </div>
