@@ -35,43 +35,103 @@
   opacity: 0.5;
 }
 
-.requests-table-wrapper {
-  background: #fff;
+.requests-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.request-card {
   border: 1px solid #e9ecef;
-  border-radius: 8px;
-  overflow: hidden;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.requests-table {
-  margin-bottom: 0;
+.request-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
-.requests-table thead {
-  background-color: #f8f9fa;
+.request-card .card-body {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  flex: 1;
 }
 
-.requests-table thead th {
-  font-weight: 600;
+.request-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.request-card-id {
+  font-size: 18px;
+  font-weight: 700;
   color: #212529;
-  border-bottom: 2px solid #dee2e6;
-  padding: 12px 16px;
-  vertical-align: middle;
 }
 
-.requests-table tbody td {
-  padding: 12px 16px;
-  vertical-align: middle;
+.request-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  margin-bottom: 16px;
 }
 
-.requests-table tbody tr:hover {
-  background-color: #f8f9fa;
+.request-card-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.request-card-label {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.request-card-value {
+  font-size: 14px;
+  color: #212529;
+  font-weight: 600;
+  text-align: right;
+}
+
+.request-card-cpi {
+  color: #156DF9;
+  font-weight: 700;
+}
+
+.request-card-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.request-card-button {
+  width: 100%;
+  font-weight: 600;
 }
 
 /* Адаптивность */
 @media (max-width: 991.98px) {
   .requests-page-container {
     padding-top: 28px;
+  }
+
+  .requests-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
   }
 }
 
@@ -86,21 +146,13 @@
     font-size: 24px;
   }
 
-  .requests-table {
-    font-size: 13px;
+  .requests-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .requests-table thead th,
-  .requests-table tbody td {
-    padding: 8px 10px;
-  }
-
-  /* Скрываем менее важные колонки на мобильных */
-  .requests-table th:nth-child(2),
-  .requests-table td:nth-child(2),
-  .requests-table th:nth-child(5),
-  .requests-table td:nth-child(5) {
-    display: none;
+  .request-card .card-body {
+    padding: 16px;
   }
 }
 
@@ -113,23 +165,19 @@
     font-size: 20px;
   }
 
-  .requests-table {
-    font-size: 12px;
+  .request-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 
-  .requests-table thead th,
-  .requests-table tbody td {
-    padding: 6px 8px;
+  .request-card-field {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 
-  /* Скрываем ещё больше колонок */
-  .requests-table th:nth-child(6),
-  .requests-table td:nth-child(6) {
-    display: none;
-  }
-
-  .requests-table .btn-sm {
-    font-size: 12px;
-    padding: 4px 8px;
+  .request-card-value {
+    text-align: left;
   }
 }

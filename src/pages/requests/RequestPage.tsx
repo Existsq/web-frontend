@@ -243,9 +243,6 @@ export default function RequestPage() {
               </div>
             )}
           </div>
-          <Link to="/requests" className="btn btn-outline-secondary">
-            ← Назад к списку
-          </Link>
         </div>
 
         {loading && (
@@ -393,56 +390,43 @@ export default function RequestPage() {
                                     }
                                   }}
                                   type="button"
-                                  title="Сохранить"
                                 >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  >
-                                    <polyline points="20 6 9 17 4 12" />
-                                  </svg>
+                                  Сохранить
                                 </button>
                               </div>
-                            )}
-                            
-                            {canEdit && (
-                              <button
-                                className="delete-icon-container"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-                                  if (requestId && cat.id) {
-                                    handleDelete(requestId, cat.id);
-                                  }
-                                }}
-                                type="button"
-                                title="Удалить категорию из заявки"
-                              >
-                                <svg
-                                  className="delete-icon"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="18"
-                                  height="18"
-                                  viewBox="0 0 15 19"
-                                  fill="none"
-                                >
-                                  <path
-                                    d="M11.7857 6.33333V16.8889H3.21429V6.33333H11.7857ZM10.1786 0H4.82143L3.75 1.05556H0V3.16667H15V1.05556H11.25L10.1786 0ZM13.9286 4.22222H1.07143V16.8889C1.07143 18.05 2.03571 19 3.21429 19H11.7857C12.9643 19 13.9286 18.05 13.9286 16.8889V4.22222Z"
-                                    fill="#dc3545"
-                                  />
-                                </svg>
-                              </button>
                             )}
                           </div>
                         </div>
                       </div>
+                      
+                      {canEdit && (
+                        <button
+                          className="delete-icon-container delete-icon-external"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            if (requestId && cat.id) {
+                              handleDelete(requestId, cat.id);
+                            }
+                          }}
+                          type="button"
+                          title="Удалить категорию из заявки"
+                        >
+                          <svg
+                            className="delete-icon"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 15 19"
+                            fill="none"
+                          >
+                            <path
+                              d="M11.7857 6.33333V16.8889H3.21429V6.33333H11.7857ZM10.1786 0H4.82143L3.75 1.05556H0V3.16667H15V1.05556H11.25L10.1786 0ZM13.9286 4.22222H1.07143V16.8889C1.07143 18.05 2.03571 19 3.21429 19H11.7857C12.9643 19 13.9286 18.05 13.9286 16.8889V4.22222Z"
+                              fill="#dc3545"
+                            />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   );
                 })

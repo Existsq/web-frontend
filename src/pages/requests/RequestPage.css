@@ -80,6 +80,7 @@
   align-items: center;
   gap: 30px;
   align-self: stretch;
+  position: relative;
 }
 
 .number-container {
@@ -103,7 +104,7 @@
   display: flex;
   width: 100%;
   max-width: 1002px;
-  height: 253px;
+  height: 200px;
   padding-right: 38px;
   align-items: center;
   gap: 36px;
@@ -272,6 +273,14 @@
   transform: scale(0.95);
 }
 
+/* Кнопка удаления справа от карточки на больших экранах */
+.delete-icon-external {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .delete-icon {
   width: 18px;
   height: 18px;
@@ -331,9 +340,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
+  min-width: 100px;
   height: 36px;
-  padding: 0;
+  padding: 8px 16px;
   border: 1px solid #156DF9;
   border-radius: 4px;
   background-color: #156DF9;
@@ -341,6 +350,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .save-amount-btn:hover {
@@ -409,6 +420,12 @@
     align-items: stretch;
     gap: 16px;
     padding: 20px;
+  }
+
+  /* На средних и маленьких экранах кнопка удаления возвращается в нормальное положение */
+  .delete-icon-external {
+    position: static;
+    transform: none;
   }
 
   .horizontal-card-title-container {

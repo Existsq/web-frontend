@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Table, Badge, Container, Card, Form, Row, Col } from "react-bootstrap";
+import { Badge, Container, Card, Form, Row, Col } from "react-bootstrap";
 import Header from "../../components/layout/Header";
 import { useAppSelector } from "../../store/store";
 import { api } from "../../api";
@@ -267,22 +267,8 @@ export default function UserRequestsPage() {
               </Card>
             )}
             {filteredRequests.length > 0 && (
-              <div className="requests-table-wrapper">
-                <Table striped bordered hover responsive className="requests-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>ID</th>
-                      <th>Статус</th>
-                      <th>Дата создания</th>
-                      <th>Категорий</th>
-                      <th>Сумма расходов</th>
-                      <th>Персональный CPI</th>
-                      <th>Действия</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredRequests.map((request, idx) => {
+              <div className="requests-cards-grid">
+                {filteredRequests.map((request, idx) => {
                   const totalSpent =
                     request.categories?.reduce(
                       (sum, cat) => sum + (cat.userSpent ?? 0),
@@ -294,42 +280,64 @@ export default function UserRequestsPage() {
                   const requestId = request.id;
 
                   return (
-                    <tr key={requestId || idx}>
-                      <td>{idx + 1}</td>
-                      <td>{requestId ? `#${requestId}` : "—"}</td>
-                      <td>{getStatusBadge(request.status || "")}</td>
-                      <td>{formatDate(request.createdAt)}</td>
-                      <td>{categoriesCount}</td>
-                      <td>
-                        {totalSpent > 0
-                          ? `${totalSpent.toLocaleString("ru-RU", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })} руб.`
-                          : "—"}
-                      </td>
-                      <td>
-                        {request.personalCPI
-                          ? `${request.personalCPI.toFixed(2)}%`
-                          : "—"}
-                      </td>
-                      <td>
-                        {requestId ? (
-                          <Link
-                            to={`/calculate-cpi/${requestId}`}
-                            className="btn btn-sm btn-outline-primary"
-                          >
-                            Открыть
-                          </Link>
-                        ) : (
-                          <span className="text-muted">ID отсутствует</span>
-                        )}
-                      </td>
-                    </tr>
+                    <Card key={requestId || idx} className="request-card">
+                      <Card.Body>
+                        <div className="request-card-header">
+                          <div className="request-card-id">
+                            {requestId ? `#${requestId}` : "—"}
+                          </div>
+                          {getStatusBadge(request.status || "")}
+                        </div>
+                        
+                        <div className="request-card-content">
+                          <div className="request-card-field">
+                            <span className="request-card-label">Дата создания:</span>
+                            <span className="request-card-value">{formatDate(request.createdAt)}</span>
+                          </div>
+                          
+                          <div className="request-card-field">
+                            <span className="request-card-label">Категорий:</span>
+                            <span className="request-card-value">{categoriesCount}</span>
+                          </div>
+                          
+                          {totalSpent > 0 && (
+                            <div className="request-card-field">
+                              <span className="request-card-label">Сумма расходов:</span>
+                              <span className="request-card-value">
+                                {totalSpent.toLocaleString("ru-RU", {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                })} руб.
+                              </span>
+                            </div>
+                          )}
+                          
+                          {request.personalCPI && (
+                            <div className="request-card-field">
+                              <span className="request-card-label">Персональный CPI:</span>
+                              <span className="request-card-value request-card-cpi">
+                                {request.personalCPI.toFixed(2)}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="request-card-footer">
+                          {requestId ? (
+                            <Link
+                              to={`/calculate-cpi/${requestId}`}
+                              className="btn btn-primary request-card-button"
+                            >
+                              Открыть
+                            </Link>
+                          ) : (
+                            <span className="text-muted">ID отсутствует</span>
+                          )}
+                        </div>
+                      </Card.Body>
+                    </Card>
                   );
-                    })}
-                  </tbody>
-                </Table>
+                })}
               </div>
             )}
           </>

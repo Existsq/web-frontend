@@ -31,10 +31,10 @@ export const UserMenu = () => {
         {user.username}
       </Link>
       <button
-        onClick={() => dispatch(logoutAsync())}
+          onClick={() => dispatch(logoutAsync())}
         className="user-login-btn"
       >
-        Выйти
+          Выйти
       </button>
     </div>
   );
