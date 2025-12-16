@@ -3,6 +3,7 @@ import type { RootState } from "./store";
 import { api } from "../api";
 import type { DraftInfoDTO, CalculateCpiDTO } from "../api";
 import { logout } from "./authSlice";
+import axios from "axios";
 
 interface RequestsState {
   draftInfo: DraftInfoDTO | null;
@@ -131,11 +132,41 @@ export const deleteDraftItem = createAsyncThunk(
   }
 );
 
+// URL асинхронного Django сервиса
+const ASYNC_SERVICE_URL = import.meta.env.VITE_ASYNC_SERVICE_URL || "http://localhost:8001/";
+const ASYNC_SERVICE_TOKEN = "lab8token";
+
+// Функция для вызова асинхронного сервиса
+const callAsyncService = async (requestId: number) => {
+  try {
+    await axios.post(ASYNC_SERVICE_URL, {
+      pk: requestId,
+      token: ASYNC_SERVICE_TOKEN
+    }, {
+      timeout: 5000
+    });
+    console.log(`Async service called for request ${requestId}`);
+  } catch (error) {
+    // Логируем ошибку, но не прерываем процесс
+    console.error(`Failed to call async service for request ${requestId}:`, error);
+  }
+};
+
 export const confirmDraftThunk = createAsyncThunk(
   "requests/confirmDraft",
   async (draftId: string | number) => {
     const response = await api.api.formDraft(Number(draftId));
-    return response.data;
+    const requestData = response.data;
+    
+    // После успешного формирования заявки вызываем асинхронный сервис
+    if (requestData.id) {
+      // Вызываем асинхронно, не блокируя ответ
+      callAsyncService(requestData.id).catch(err => {
+        console.error("Async service call failed:", err);
+      });
+    }
+    
+    return requestData;
   }
 );
 

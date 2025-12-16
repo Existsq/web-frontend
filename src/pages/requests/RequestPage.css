@@ -67,6 +67,10 @@
   font-weight: 700;
 }
 
+.cpi-text-error {
+  color: #dc3545;
+}
+
 .order-grid {
   display: flex;
   flex-direction: column;

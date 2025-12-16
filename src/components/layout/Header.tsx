@@ -28,7 +28,7 @@ function Header() {
 
             {isAuthenticated && (
               <Nav.Link as={Link} to="/requests">
-                Мои заявки
+                Заявки
               </Nav.Link>
             )}
 

@@ -1,39 +1,38 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Badge, Container, Card, Form, Row, Col } from "react-bootstrap";
+import { Container, Card, Form, Row, Col, Button } from "react-bootstrap";
 import Header from "../../components/layout/Header";
-import { useAppSelector } from "../../store/store";
+import { useAppSelector, useAppDispatch } from "../../store/store";
 import { api } from "../../api";
+import { denyOrCompleteRequest } from "../../store/requestsSlice";
 import type { CalculateCpiDTO } from "../../api";
 import "./UserRequestsPage.css";
 
-const getStatusBadge = (status: string) => {
-  const statusMap: Record<string, { variant: string; label: string }> = {
-    DRAFT: { variant: "secondary", label: "Черновик" },
-    FORMED: { variant: "info", label: "Оформлен" },
-    COMPLETED: { variant: "success", label: "Завершен" },
-    REJECTED: { variant: "danger", label: "Отклонен" },
-    DELETED: { variant: "dark", label: "Удален" },
-  };
-
-  const statusInfo = statusMap[status] || { variant: "secondary", label: status };
-  return <Badge bg={statusInfo.variant}>{statusInfo.label}</Badge>;
-};
-
-const formatDate = (dateString?: string) => {
+// Функция для форматирования даты в формат ДД.ММ.ГГГГ
+const formatDateDDMMYYYY = (dateString?: string) => {
   if (!dateString) return "—";
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString("ru-RU", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
   } catch {
     return dateString;
   }
+};
+
+
+// Функция для получения русского названия статуса
+const getStatusLabel = (status?: string) => {
+  const statusMap: Record<string, string> = {
+    DRAFT: "Черновик",
+    FORMED: "Оформлен",
+    COMPLETED: "Завершен",
+    REJECTED: "Отклонен",
+    DELETED: "Удален",
+  };
+  return statusMap[status || ""] || status || "—";
 };
 
 // Функция для форматирования даты в формат YYYY-MM-DD для input type="date"
@@ -60,83 +59,144 @@ const getEndOfDay = (date: Date): Date => {
 
 export default function UserRequestsPage() {
   const { user } = useAppSelector((s) => s.auth);
+  const dispatch = useAppDispatch();
   const [requests, setRequests] = useState<CalculateCpiDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isInitialLoadRef = useRef(true);
 
-  // Фильтры: по умолчанию сегодня-сегодня, статус - любой
+  const isModerator = user?.moderator === true;
+
+  // Фильтры: для модераторов - по дате формирования, для обычных пользователей - по дате создания
   const today = new Date();
+  const [formedFrom, setFormedFrom] = useState<string>("");
+  const [formedTo, setFormedTo] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<string>(formatDateForInput(today));
   const [dateTo, setDateTo] = useState<string>(formatDateForInput(today));
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [creatorFilter, setCreatorFilter] = useState<string>("");
 
-  useEffect(() => {
-    const loadRequests = async () => {
-      if (!user) {
-        setRequests([]);
-        setLoading(false);
-        return;
+  const loadRequests = useCallback(async (isInitialLoad: boolean) => {
+    if (!user) {
+      setRequests([]);
+      if (isInitialLoad) setLoading(false);
+      return;
+    }
+
+    // Показываем индикатор загрузки только при первой загрузке или явном запросе
+    if (isInitialLoad || isInitialLoadRef.current) {
+      setLoading(true);
+    }
+    setError(null);
+    try {
+      const queryParams: {
+        formedFrom?: string;
+        formedTo?: string;
+        status?: "DRAFT" | "DELETED" | "FORMED" | "COMPLETED" | "REJECTED";
+      } = {};
+
+      if (isModerator) {
+        // Для модераторов используем бэкенд-фильтрацию по дате формирования
+        if (formedFrom) {
+          queryParams.formedFrom = formedFrom;
+        }
+        if (formedTo) {
+          queryParams.formedTo = formedTo;
+        }
+        if (statusFilter !== "ALL") {
+          queryParams.status = statusFilter as "DRAFT" | "DELETED" | "FORMED" | "COMPLETED" | "REJECTED";
+        }
       }
 
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await api.api.getAll();
-        const data = response.data;
-        
-        // Логируем структуру данных для отладки
-        if (data.length > 0) {
-          console.log("First request structure:", data[0]);
-          console.log("Request ID:", (data[0] as any).id);
-        }
-        
-        // Сортируем: сначала черновики, потом по дате создания (новые сверху)
-        const sorted = [...data].sort((a, b) => {
-          if (a.status === "DRAFT" && b.status !== "DRAFT") return -1;
-          if (a.status !== "DRAFT" && b.status === "DRAFT") return 1;
-          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return dateB - dateA;
-        });
-        setRequests(sorted);
-      } catch (err) {
-        console.error("Failed to load requests:", err);
+      const response = await api.api.getAll(queryParams);
+      const data = response.data;
+      
+      // Сортируем: сначала черновики, потом по дате создания (новые сверху)
+      const sorted = [...data].sort((a, b) => {
+        if (a.status === "DRAFT" && b.status !== "DRAFT") return -1;
+        if (a.status !== "DRAFT" && b.status === "DRAFT") return 1;
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+      setRequests(sorted);
+    } catch (err) {
+      console.error("Failed to load requests:", err);
+      // Показываем ошибку только при первой загрузке
+      if (isInitialLoad || isInitialLoadRef.current) {
         setError("Не удалось загрузить список расчетов");
         setRequests([]);
-      } finally {
+      }
+    } finally {
+      if (isInitialLoad || isInitialLoadRef.current) {
         setLoading(false);
+        isInitialLoadRef.current = false;
+      }
+    }
+  }, [user, isModerator, formedFrom, formedTo, statusFilter]);
+
+  useEffect(() => {
+    // Сбрасываем флаг первой загрузки при изменении фильтров
+    isInitialLoadRef.current = true;
+    loadRequests(true);
+
+    // Short polling только для модераторов
+    if (isModerator) {
+      // Интервал поллинга из переменной окружения (по умолчанию 20 секунд)
+      const pollingInterval = Number(import.meta.env.VITE_POLLING_INTERVAL_MS) || 20000;
+      
+      pollingIntervalRef.current = setInterval(() => {
+        loadRequests(false);
+      }, pollingInterval);
+    }
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
       }
     };
-
-    loadRequests();
-  }, [user]);
+  }, [loadRequests, isModerator]);
 
   // Применяем фильтры к заявкам
   const filteredRequests = useMemo(() => {
     if (!requests.length) return [];
 
-    const fromDate = getStartOfDay(new Date(dateFrom));
-    const toDate = getEndOfDay(new Date(dateTo));
+    let filtered = requests;
 
-    const filtered = requests.filter((request) => {
-      // Фильтр по дате
-      if (request.createdAt) {
-        const requestDate = new Date(request.createdAt);
-        if (requestDate < fromDate || requestDate > toDate) {
+    // Для обычных пользователей применяем фронтенд-фильтрацию по дате создания
+    if (!isModerator) {
+      const fromDate = getStartOfDay(new Date(dateFrom));
+      const toDate = getEndOfDay(new Date(dateTo));
+
+      filtered = requests.filter((request) => {
+        // Фильтр по дате
+        if (request.createdAt) {
+          const requestDate = new Date(request.createdAt);
+          if (requestDate < fromDate || requestDate > toDate) {
+            return false;
+          }
+        } else {
+          // Если нет даты создания, пропускаем
           return false;
         }
-      } else {
-        // Если нет даты создания, пропускаем
-        return false;
-      }
 
-      // Фильтр по статусу
-      if (statusFilter !== "ALL" && request.status !== statusFilter) {
-        return false;
-      }
+        // Фильтр по статусу
+        if (statusFilter !== "ALL" && request.status !== statusFilter) {
+          return false;
+        }
 
-      return true;
-    });
+        return true;
+      });
+    } else {
+      // Для модераторов фильтрация по статусу уже выполнена на бэкенде
+      // Применяем только фильтр по создателю (фронтенд-фильтрация)
+      if (creatorFilter) {
+        filtered = requests.filter((request) => 
+          request.creatorUsername?.toLowerCase().includes(creatorFilter.toLowerCase())
+        );
+      }
+    }
 
     // Применяем сортировку к отфильтрованным заявкам
     return [...filtered].sort((a, b) => {
@@ -146,7 +206,18 @@ export default function UserRequestsPage() {
       const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return dateB - dateA;
     });
-  }, [requests, dateFrom, dateTo, statusFilter]);
+  }, [requests, dateFrom, dateTo, statusFilter, creatorFilter, isModerator]);
+
+  const handleModerateRequest = async (requestId: number, approve: boolean) => {
+    try {
+      await dispatch(denyOrCompleteRequest({ requestId, approve })).unwrap();
+      // После успешного изменения статуса сразу обновляем список
+      // (для модераторов поллинг продолжит обновлять данные каждые 2.5 секунды)
+      await loadRequests(false);
+    } catch (error) {
+      console.error(`Failed to ${approve ? 'complete' : 'reject'} request:`, error);
+    }
+  };
 
   if (!user) {
     return (
@@ -169,8 +240,23 @@ export default function UserRequestsPage() {
     <div className="main-page-container">
       <Header />
       <Container className="requests-page-container">
+        {/* Хлебные крошки */}
+        <nav className="breadcrumbs-container" aria-label="Breadcrumb">
+          <ol className="breadcrumbs-list">
+            <li className="breadcrumbs-item">
+              <Link to="/" className="breadcrumbs-link">Главная</Link>
+            </li>
+            <li className="breadcrumbs-item">
+              <span className="breadcrumbs-separator"> / </span>
+              <span className="breadcrumbs-current">Заявки</span>
+            </li>
+          </ol>
+        </nav>
+
         <div className="requests-page-header">
-          <h1 className="requests-page-title">Мои расчеты CPI</h1>
+          <h1 className="requests-page-title">
+            {isModerator ? "Управление заявками" : "Мои расчеты CPI"}
+          </h1>
         </div>
 
         {loading && (
@@ -190,42 +276,78 @@ export default function UserRequestsPage() {
         )}
 
         {!loading && !error && (
-          <Card className="requests-filters-card mb-4">
-            <Card.Body>
-              <Row className="g-3">
-                <Col md={4}>
-                  <Form.Label>С даты</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={dateFrom}
-                    onChange={(e) => setDateFrom(e.target.value)}
-                  />
-                </Col>
-                <Col md={4}>
-                  <Form.Label>По дату</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={dateTo}
-                    onChange={(e) => setDateTo(e.target.value)}
-                  />
-                </Col>
-                <Col md={4}>
-                  <Form.Label>Статус</Form.Label>
-                  <Form.Select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                  >
-                    <option value="ALL">Любой</option>
-                    <option value="DRAFT">Черновик</option>
-                    <option value="FORMED">Оформлен</option>
-                    <option value="COMPLETED">Завершен</option>
-                    <option value="REJECTED">Отклонен</option>
-                    <option value="DELETED">Удален</option>
-                  </Form.Select>
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
+          <div className="requests-filters-row">
+            <Row className="g-3 align-items-end">
+              <Col md={isModerator ? 2 : 3}>
+                <Form.Label className="filter-label">Статус</Form.Label>
+                <Form.Select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="filter-control"
+                >
+                  <option value="ALL">Любой</option>
+                  <option value="DRAFT">Черновик</option>
+                  <option value="FORMED">Оформлен</option>
+                  <option value="COMPLETED">Завершен</option>
+                  <option value="REJECTED">Отклонен</option>
+                  <option value="DELETED">Удален</option>
+                </Form.Select>
+              </Col>
+              {isModerator ? (
+                <>
+                  <Col md={3}>
+                    <Form.Label className="filter-label">Дата начала</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={formedFrom}
+                      onChange={(e) => setFormedFrom(e.target.value)}
+                      className="filter-control"
+                    />
+                  </Col>
+                  <Col md={3}>
+                    <Form.Label className="filter-label">Дата окончания</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={formedTo}
+                      onChange={(e) => setFormedTo(e.target.value)}
+                      className="filter-control"
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <Form.Label className="filter-label">Создатель</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Введите имя создателя..."
+                      value={creatorFilter}
+                      onChange={(e) => setCreatorFilter(e.target.value)}
+                      className="filter-control"
+                    />
+                  </Col>
+                </>
+              ) : (
+                <>
+                  <Col md={4}>
+                    <Form.Label className="filter-label">Дата начала</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={dateFrom}
+                      onChange={(e) => setDateFrom(e.target.value)}
+                      className="filter-control"
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <Form.Label className="filter-label">Дата окончания</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={dateTo}
+                      onChange={(e) => setDateTo(e.target.value)}
+                      className="filter-control"
+                    />
+                  </Col>
+                </>
+              )}
+            </Row>
+          </div>
         )}
 
         {!loading && !error && requests.length === 0 && (
@@ -267,71 +389,122 @@ export default function UserRequestsPage() {
               </Card>
             )}
             {filteredRequests.length > 0 && (
-              <div className="requests-cards-grid">
+              <div className="requests-list">
                 {filteredRequests.map((request, idx) => {
                   const totalSpent =
                     request.categories?.reduce(
                       (sum, cat) => sum + (cat.userSpent ?? 0),
                       0
                     ) ?? 0;
-                  const categoriesCount = request.categories?.length ?? 0;
                   
                   // Получаем ID из request
                   const requestId = request.id;
 
                   return (
-                    <Card key={requestId || idx} className="request-card">
+                    <Card key={requestId || idx} className="request-card-new">
                       <Card.Body>
-                        <div className="request-card-header">
-                          <div className="request-card-id">
-                            {requestId ? `#${requestId}` : "—"}
-                          </div>
-                          {getStatusBadge(request.status || "")}
+                        {/* Номер заявки */}
+                        <div className="request-number">
+                          Заявка №{requestId || "—"}
                         </div>
                         
-                        <div className="request-card-content">
-                          <div className="request-card-field">
-                            <span className="request-card-label">Дата создания:</span>
-                            <span className="request-card-value">{formatDate(request.createdAt)}</span>
+                        {/* Детали в одну строку */}
+                        <div className="request-details-row">
+                          <div className="request-detail-item">
+                            <div className="request-detail-value">
+                              {getStatusLabel(request.status)}
+                            </div>
+                            <div className="request-detail-label">Статус</div>
                           </div>
                           
-                          <div className="request-card-field">
-                            <span className="request-card-label">Категорий:</span>
-                            <span className="request-card-value">{categoriesCount}</span>
+                          <div className="request-detail-item">
+                            <div className="request-detail-value">
+                              {formatDateDDMMYYYY(request.createdAt)}
+                            </div>
+                            <div className="request-detail-label">Дата создания</div>
                           </div>
+                          
+                          {request.formedAt && (
+                            <div className="request-detail-item">
+                              <div className="request-detail-value">
+                                {formatDateDDMMYYYY(request.formedAt)}
+                              </div>
+                              <div className="request-detail-label">Дата формирования</div>
+                            </div>
+                          )}
                           
                           {totalSpent > 0 && (
-                            <div className="request-card-field">
-                              <span className="request-card-label">Сумма расходов:</span>
-                              <span className="request-card-value">
+                            <div className="request-detail-item">
+                              <div className="request-detail-value">
                                 {totalSpent.toLocaleString("ru-RU", {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                })} руб.
-                              </span>
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                })} ₽
+                              </div>
+                              <div className="request-detail-label">Сумма расходов</div>
                             </div>
                           )}
                           
-                          {request.personalCPI && (
-                            <div className="request-card-field">
-                              <span className="request-card-label">Персональный CPI:</span>
-                              <span className="request-card-value request-card-cpi">
-                                {request.personalCPI.toFixed(2)}%
-                              </span>
+                          {isModerator && (
+                            <div className="request-detail-item">
+                              <div className="request-detail-value">
+                                {request.creatorUsername || "—"}
+                              </div>
+                              <div className="request-detail-label">Создатель</div>
+                            </div>
+                          )}
+                          
+                          {/* Персональный CPI - показываем всегда, если статус COMPLETED */}
+                          {request.status === "COMPLETED" && (
+                            <div className="request-detail-item">
+                              <div className="request-detail-value">
+                                {request.personalCPI != null ? (
+                                  <span className="request-cpi-value">
+                                    {request.personalCPI.toFixed(2)}%
+                                  </span>
+                                ) : (
+                                  <span className="request-cpi-not-calculated">
+                                    Не рассчитан
+                                  </span>
+                                )}
+                              </div>
+                              <div className="request-detail-label">Персональный CPI</div>
                             </div>
                           )}
                         </div>
                         
-                        <div className="request-card-footer">
+                        {/* Кнопка открыть и кнопки модерации */}
+                        <div className="request-card-actions-new">
                           {requestId ? (
                             <Link
                               to={`/calculate-cpi/${requestId}`}
-                              className="btn btn-primary request-card-button"
+                              className="btn btn-primary request-open-btn"
                             >
                               Открыть
                             </Link>
                           ) : (
                             <span className="text-muted">ID отсутствует</span>
+                          )}
+
+                          {isModerator && request.status === "FORMED" && requestId && (
+                            <div className="moderator-actions-new">
+                              <Button
+                                variant="success"
+                                size="sm"
+                                onClick={() => handleModerateRequest(requestId, true)}
+                                className="moderator-action-btn-new"
+                              >
+                                Завершить
+                              </Button>
+                              <Button
+                                variant="danger"
+                                size="sm"
+                                onClick={() => handleModerateRequest(requestId, false)}
+                                className="moderator-action-btn-new"
+                              >
+                                Отклонить
+                              </Button>
+                            </div>
                           )}
                         </div>
                       </Card.Body>

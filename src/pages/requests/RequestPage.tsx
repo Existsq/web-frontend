@@ -273,11 +273,17 @@ export default function RequestPage() {
 
         {!loading && request && (
           <>
-            {request.personalCPI != null && (
+            {request.status === "COMPLETED" && request.calculationSuccess !== null && request.calculationSuccess !== undefined && (
               <div className="cpi-text-container">
-                <p className="cpi-text">
-                  Ваш персональный ИПЦ - <span>{request.personalCPI.toFixed(2)}%</span>
-                </p>
+                {request.calculationSuccess === true && request.personalCPI != null ? (
+                  <p className="cpi-text">
+                    Ваш персональный ИПЦ - <span>{request.personalCPI.toFixed(2)}%</span>
+                  </p>
+                ) : (
+                  <p className="cpi-text cpi-text-error">
+                    Произошла ошибка при расчете персонального ИПЦ
+                  </p>
+                )}
               </div>
             )}
 

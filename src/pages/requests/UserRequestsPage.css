@@ -4,8 +4,54 @@
   padding-bottom: 40px;
 }
 
+/* Хлебные крошки */
+.breadcrumbs-container {
+  padding: 16px 0;
+  margin-bottom: 16px;
+}
+
+.breadcrumbs-list {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.breadcrumbs-item {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumbs-separator {
+  color: #6c757d;
+  margin: 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.breadcrumbs-link {
+  color: #156DF9;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.breadcrumbs-link:hover {
+  color: #156DF9;
+  text-decoration: underline;
+}
+
+.breadcrumbs-current {
+  color: #156DF9;
+  font-size: 16px;
+  font-weight: 600;
+}
+
 .requests-page-header {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .requests-page-title {
@@ -23,11 +69,29 @@
 }
 
 .requests-error-card,
-.requests-empty-card,
-.requests-filters-card {
+.requests-empty-card {
   border: 1px solid #e9ecef;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Фильтры в горизонтальной строке */
+.requests-filters-row {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.filter-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.filter-control {
+  font-size: 14px;
 }
 
 .empty-icon {
@@ -35,91 +99,104 @@
   opacity: 0.5;
 }
 
-.requests-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
+/* Список заявок */
+.requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 32px;
 }
 
-.request-card {
+/* Новая карточка заявки */
+.request-card-new {
   border: 1px solid #e9ecef;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
-.request-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+.request-card-new:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-.request-card .card-body {
-  display: flex;
-  flex-direction: column;
+.request-card-new .card-body {
   padding: 20px;
-  flex: 1;
 }
 
-.request-card-header {
+/* Номер заявки */
+.request-number {
+  font-size: 18px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 16px;
+}
+
+/* Строка с деталями */
+.request-details-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
   margin-bottom: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e9ecef;
 }
 
-.request-card-id {
-  font-size: 18px;
-  font-weight: 700;
-  color: #212529;
-}
-
-.request-card-content {
+.request-detail-item {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  flex: 1;
-  margin-bottom: 16px;
+  gap: 4px;
+  min-width: 120px;
 }
 
-.request-card-field {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+.request-detail-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
 }
 
-.request-card-label {
-  font-size: 14px;
+.request-detail-label {
+  font-size: 12px;
   color: #6c757d;
   font-weight: 500;
+  text-transform: lowercase;
 }
 
-.request-card-value {
-  font-size: 14px;
-  color: #212529;
+/* Действия */
+.request-card-actions-new {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.request-open-btn {
   font-weight: 600;
-  text-align: right;
+  padding: 8px 24px;
 }
 
-.request-card-cpi {
+.moderator-actions-new {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.moderator-action-btn-new {
+  font-weight: 600;
+  padding: 6px 16px;
+}
+
+.request-cpi-value {
   color: #156DF9;
   font-weight: 700;
 }
 
-.request-card-footer {
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid #e9ecef;
+.request-cpi-not-calculated {
+  color: #6c757d;
+  font-style: italic;
 }
 
-.request-card-button {
-  width: 100%;
+.request-card-error {
+  color: #dc3545;
   font-weight: 600;
 }
 
@@ -129,9 +206,12 @@
     padding-top: 28px;
   }
 
-  .requests-cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+  .request-details-row {
+    gap: 16px;
+  }
+
+  .request-detail-item {
+    min-width: 100px;
   }
 }
 
@@ -146,13 +226,30 @@
     font-size: 24px;
   }
 
-  .requests-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .request-card-new .card-body {
+    padding: 16px;
   }
 
-  .request-card .card-body {
-    padding: 16px;
+  .request-details-row {
+    gap: 12px;
+  }
+
+  .request-detail-item {
+    min-width: 80px;
+  }
+
+  .request-card-actions-new {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .moderator-actions-new {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .moderator-action-btn-new {
+    flex: 1;
   }
 }
 
@@ -165,19 +262,13 @@
     font-size: 20px;
   }
 
-  .request-card-header {
+  .request-details-row {
     flex-direction: column;
-    align-items: flex-start;
     gap: 12px;
   }
 
-  .request-card-field {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-
-  .request-card-value {
-    text-align: left;
+  .request-detail-item {
+    width: 100%;
+    min-width: unset;
   }
 }

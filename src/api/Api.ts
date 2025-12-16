@@ -64,7 +64,10 @@ export interface CalculateCpiDTO {
   moderatorUsername?: string;
   /** @format double */
   personalCPI?: number;
+  calculationSuccess?: boolean;
   categories?: CategoryDTO[];
+  /** @format int32 */
+  filledCategoriesCount?: number;
 }
 
 export interface CalculateCpiCategoryDTO {
@@ -632,17 +635,29 @@ export class Api<
     getAll: (
       query?: {
         /**
-         * Дата начала периода фильтрации
+         * Дата начала периода фильтрации (по дате создания)
          * @format date
          * @example "2025-01-01"
          */
         from?: string;
         /**
-         * Дата конца периода фильтрации
+         * Дата конца периода фильтрации (по дате создания)
          * @format date
          * @example "2025-02-01"
          */
         to?: string;
+        /**
+         * Дата начала периода фильтрации (по дате формирования)
+         * @format date
+         * @example "2025-01-01"
+         */
+        formedFrom?: string;
+        /**
+         * Дата конца периода фильтрации (по дате формирования)
+         * @format date
+         * @example "2025-02-01"
+         */
+        formedTo?: string;
         /** Статус расчета (например, DRAFT, SUBMITTED, COMPLETED) */
         status?: "DRAFT" | "DELETED" | "FORMED" | "COMPLETED" | "REJECTED";
       },
@@ -687,6 +702,35 @@ export class Api<
         path: `/api/calculate-cpi/${draftId}`,
         method: "DELETE",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Принимает результаты асинхронной обработки заявки от внешнего сервиса. Доступно только с правильным токеном.
+     *
+     * @tags CPI Calculation
+     * @name UpdateAsyncResult
+     * @summary Обновить результаты асинхронной обработки
+     * @request PUT:/api/calculate-cpi/{id}/async-result
+     * @secure
+     */
+    updateAsyncResult: (
+      id: number,
+      data: {
+        categories?: Array<{
+          categoryId?: number;
+          coefficient?: number | null;
+          success?: boolean;
+        }>;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, ErrorResponse>({
+        path: `/api/calculate-cpi/${id}/async-result`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         ...params,
       }),
   };
