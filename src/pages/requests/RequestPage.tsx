@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Card, Button, Container } from "react-bootstrap";
+import { Card, Button, Container, Modal, Form } from "react-bootstrap";
 import Header from "../../components/layout/Header";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import {
-  loadDraft,
-  loadRequest,
-  changeDraftItemQuantity,
-  deleteDraftItem,
-  confirmDraftThunk,
-  denyOrCompleteRequest,
+  loadCpiDraft,
+  loadCpiCalculation,
+  updateCpiExpense,
+  removeCpiCategory,
+  submitCpiCalculation,
+  approveCpiCalculation,
 } from "../../store/requestsSlice";
+import { api } from "../../api";
 import "./RequestPage.css";
 
 const formatDate = (dateString?: string) => {
@@ -27,12 +28,42 @@ const formatDate = (dateString?: string) => {
   }
 };
 
+// Функция для форматирования даты сравнения (формат YYYY-MM-DD)
+const formatComparisonDate = (dateString?: string) => {
+  if (!dateString) return "—";
+  try {
+    // Если дата в формате YYYY-MM-DD, парсим её напрямую
+    const date = new Date(dateString + 'T00:00:00');
+    return date.toLocaleDateString("ru-RU", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
+
 const formatCoefficient = (coefficient?: number) => {
   if (coefficient == null) return "0%";
   if (coefficient % 1 === 0) {
     return `${coefficient.toFixed(0)}%`;
   }
   return `${coefficient.toFixed(1)}%`;
+};
+
+// Функция для форматирования даты в формат ДД.ММ.ГГГГ для отображения
+const formatDateForInputDisplay = (dateString?: string) => {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  } catch {
+    return dateString;
+  }
 };
 
 export default function RequestPage() {
@@ -91,9 +122,9 @@ export default function RequestPage() {
 
   useEffect(() => {
     if (isDraft) {
-      dispatch(loadDraft());
+      dispatch(loadCpiDraft());
     } else if (id) {
-      dispatch(loadRequest(id));
+      dispatch(loadCpiCalculation(id));
     }
   }, [dispatch, isDraft, id]);
 
@@ -103,7 +134,7 @@ export default function RequestPage() {
       const currentCategoriesCount = request?.categories?.length || 0;
       const isLastCategory = currentCategoriesCount === 1;
       
-      const result = await dispatch(deleteDraftItem({ cpiId, categoryId })).unwrap();
+      const result = await dispatch(removeCpiCategory({ cpiId, categoryId })).unwrap();
       
       // Проверяем, остались ли категории после удаления
       const hasCategories = result.draft?.categories && result.draft.categories.length > 0;
@@ -118,29 +149,29 @@ export default function RequestPage() {
       // Перезагружаем данные в зависимости от типа заявки
       if (isDraft) {
         // Если это черновик, перезагружаем его
-        await dispatch(loadDraft());
+        await dispatch(loadCpiDraft());
       } else if (id) {
         // Если это конкретная заявка, перезагружаем её
-        await dispatch(loadRequest(id));
+        await dispatch(loadCpiCalculation(id));
       }
       // Всегда перезагружаем draftInfo для обновления корзины
-      await dispatch(loadDraft());
+      await dispatch(loadCpiDraft());
     } catch (error) {
       console.error("Failed to delete category:", error);
     }
   };
 
   const handleConfirm = (draftId: string | number) => {
-    dispatch(confirmDraftThunk(draftId));
+    dispatch(submitCpiCalculation(draftId));
   };
 
   const handleModerateRequest = async (approve: boolean) => {
     if (!requestId) return;
     
     try {
-      await dispatch(denyOrCompleteRequest({ requestId, approve })).unwrap();
-      // После успешного завершения/отклонения загружаем обновленную заявку
-      await dispatch(loadRequest(requestId)).unwrap();
+      await dispatch(approveCpiCalculation({ requestId, approve })).unwrap();
+      // После успешного одобрения/отклонения загружаем обновленный расчет
+      await dispatch(loadCpiCalculation(requestId)).unwrap();
     } catch (error) {
       console.error(`Failed to ${approve ? 'complete' : 'reject'} request:`, error);
     }
@@ -158,7 +189,7 @@ export default function RequestPage() {
       for (const category of categoriesToDelete) {
         if (category.id) {
           try {
-            await dispatch(deleteDraftItem({ cpiId: requestId, categoryId: category.id })).unwrap();
+            await dispatch(removeCpiCategory({ cpiId: requestId, categoryId: category.id })).unwrap();
           } catch (error) {
             console.error(`Failed to delete category ${category.id}:`, error);
           }
@@ -177,6 +208,11 @@ export default function RequestPage() {
 
   // Локальное состояние для редактируемых значений
   const [editedValues, setEditedValues] = useState<Record<number, string>>({});
+  
+  // Состояние для модального окна выбора даты сравнения
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [comparisonDate, setComparisonDate] = useState<string>("");
+  const [updatingDate, setUpdatingDate] = useState(false);
 
   // Обновляем локальное состояние при загрузке данных
   useEffect(() => {
@@ -189,7 +225,15 @@ export default function RequestPage() {
       });
       setEditedValues(initialValues);
     }
-  }, [request?.categories]);
+    
+    // Устанавливаем дату сравнения из заявки
+    if (request?.comparisonDate) {
+      // Преобразуем дату из формата YYYY-MM-DD в формат для input type="date"
+      setComparisonDate(request.comparisonDate.split('T')[0]);
+    } else {
+      setComparisonDate("");
+    }
+  }, [request?.categories, request?.comparisonDate]);
 
   const handleInputChange = (categoryId: number, value: string) => {
     // Если значение пустое, сохраняем пустую строку
@@ -202,16 +246,41 @@ export default function RequestPage() {
     if (!Number.isFinite(amount) || amount < 0 || !requestId) return;
 
     dispatch(
-      changeDraftItemQuantity({
+      updateCpiExpense({
         cpiId: requestId,
         categoryId,
         amount,
       })
     ).then(() => {
       if (!isDraft && id) {
-        dispatch(loadRequest(id));
+        dispatch(loadCpiCalculation(id));
       }
     });
+  };
+
+  const handleUpdateComparisonDate = async () => {
+    if (!requestId) return;
+    
+    setUpdatingDate(true);
+    try {
+      await api.api.update1(requestId, {
+        ...request,
+        comparisonDate: comparisonDate || undefined,
+      });
+      
+      // Перезагружаем расчет
+      if (isDraft) {
+        await dispatch(loadCpiDraft());
+      } else if (id) {
+        await dispatch(loadCpiCalculation(id));
+      }
+      
+      setShowDateModal(false);
+    } catch (error) {
+      console.error("Failed to update comparison date:", error);
+    } finally {
+      setUpdatingDate(false);
+    }
   };
 
   return (
@@ -225,6 +294,11 @@ export default function RequestPage() {
             </h1>
             {request && (
               <div className="request-page-meta">
+                {request.comparisonDate && (
+                  <span className="request-meta-item">
+                    Дата сравнения: {formatComparisonDate(request.comparisonDate)}
+                  </span>
+                )}
                 {request.createdAt && (
                   <span className="request-meta-item">
                     Создан: {formatDate(request.createdAt)}
@@ -243,6 +317,17 @@ export default function RequestPage() {
               </div>
             )}
           </div>
+          {request && canEdit && (
+            <Button
+              variant="outline-primary"
+              onClick={() => setShowDateModal(true)}
+              className="comparison-date-btn"
+            >
+              {request.comparisonDate 
+                ? `Дата сравнения: ${formatDateForInputDisplay(request.comparisonDate)}`
+                : "Выбрать дату сравнения"}
+            </Button>
+          )}
         </div>
 
         {loading && (
@@ -487,6 +572,38 @@ export default function RequestPage() {
             )}
           </>
         )}
+
+        {/* Модальное окно для выбора даты сравнения */}
+        <Modal show={showDateModal} onHide={() => setShowDateModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Выбор даты сравнения</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Дата сравнения</Form.Label>
+              <Form.Control
+                type="date"
+                value={comparisonDate}
+                onChange={(e) => setComparisonDate(e.target.value)}
+              />
+              <Form.Text className="text-muted">
+                Выберите дату для базовой цены P_i(t0) в расчете персонального ИПЦ
+              </Form.Text>
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDateModal(false)}>
+              Отмена
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleUpdateComparisonDate}
+              disabled={updatingDate}
+            >
+              {updatingDate ? "Сохранение..." : "Сохранить"}
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
     </div>
   );

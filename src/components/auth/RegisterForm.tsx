@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { register } from "../../store/authSlice";
+import { authRegister } from "../../store/authSlice";
 
 export default function RegisterForm() {
   const dispatch = useAppDispatch();
@@ -15,7 +15,7 @@ export default function RegisterForm() {
     if (!username || !password || password !== password2) {
       return;
     }
-    dispatch(register({ username, password }));
+    dispatch(authRegister({ username, password }));
   };
 
   return (

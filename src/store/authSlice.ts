@@ -24,8 +24,8 @@ const initialState: AuthState = {
   error: null,
 };
 
-// Login: после успешного логина сразу запрашиваем профиль пользователя
-export const login = createAsyncThunk(
+// Авторизация пользователя: после успешного логина сразу запрашиваем профиль пользователя
+export const authLogin = createAsyncThunk(
   "auth/login",
   async (data: UserCredentialsDTO) => {
     await api.api.login(data);
@@ -35,8 +35,8 @@ export const login = createAsyncThunk(
   }
 );
 
-// Register: после регистрации также получаем текущего пользователя
-export const register = createAsyncThunk(
+// Регистрация пользователя: после регистрации также получаем текущего пользователя
+export const authRegister = createAsyncThunk(
   "auth/register",
   async (data: UserCredentialsDTO) => {
     await api.api.register(data);
@@ -46,9 +46,9 @@ export const register = createAsyncThunk(
   }
 );
 
-// Logout
-export const logoutAsync = createAsyncThunk(
-  "auth/logoutAsync",
+// Выход пользователя из системы
+export const authLogout = createAsyncThunk(
+  "auth/logout",
   async (_, { dispatch }) => {
     try {
       await api.api.logout();
@@ -60,8 +60,8 @@ export const logoutAsync = createAsyncThunk(
   }
 );
 
-// Update profile
-export const updateProfile = createAsyncThunk(
+// Обновление профиля пользователя
+export const authUpdateProfile = createAsyncThunk(
   "auth/updateProfile",
   async (data: UserCredentialsDTO) => {
     const response = await api.api.updateUser(data);
@@ -69,8 +69,8 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
-// Change password
-export const changePassword = createAsyncThunk(
+// Смена пароля пользователя
+export const authChangePassword = createAsyncThunk(
   "auth/changePassword",
   async (data: { oldPassword: string; newPassword: string }) => {
     const response = await axios.post(
@@ -93,53 +93,53 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(login.pending, (s) => {
+      .addCase(authLogin.pending, (s) => {
         s.loading = true;
         s.error = null;
       })
-      .addCase(login.fulfilled, (s, a) => {
+      .addCase(authLogin.fulfilled, (s, a) => {
         s.loading = false;
         s.user = a.payload;
       })
-      .addCase(login.rejected, (s, a) => {
+      .addCase(authLogin.rejected, (s, a) => {
         s.loading = false;
         s.error = a.error.message || "Login failed";
       })
 
-      .addCase(register.pending, (s) => {
+      .addCase(authRegister.pending, (s) => {
         s.loading = true;
         s.error = null;
       })
-      .addCase(register.fulfilled, (s, a) => {
+      .addCase(authRegister.fulfilled, (s, a) => {
         s.loading = false;
         s.user = a.payload;
       })
-      .addCase(register.rejected, (s, a) => {
+      .addCase(authRegister.rejected, (s, a) => {
         s.loading = false;
         s.error = a.error.message || "Register failed";
       })
-      // update profile
-      .addCase(updateProfile.pending, (s) => {
+      // Обновление профиля
+      .addCase(authUpdateProfile.pending, (s) => {
         s.loading = true;
         s.error = null;
       })
-      .addCase(updateProfile.fulfilled, (s, a) => {
+      .addCase(authUpdateProfile.fulfilled, (s, a) => {
         s.loading = false;
         s.user = a.payload;
       })
-      .addCase(updateProfile.rejected, (s, a) => {
+      .addCase(authUpdateProfile.rejected, (s, a) => {
         s.loading = false;
         s.error = a.error.message || "Profile update failed";
       })
-      // change password
-      .addCase(changePassword.pending, (s) => {
+      // Смена пароля
+      .addCase(authChangePassword.pending, (s) => {
         s.loading = true;
         s.error = null;
       })
-      .addCase(changePassword.fulfilled, (s) => {
+      .addCase(authChangePassword.fulfilled, (s) => {
         s.loading = false;
       })
-      .addCase(changePassword.rejected, (s, a) => {
+      .addCase(authChangePassword.rejected, (s, a) => {
         s.loading = false;
         s.error = a.error.message || "Password change failed";
       });

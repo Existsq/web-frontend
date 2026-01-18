@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Form, Button, Card } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { updateProfile, changePassword } from "../../store/authSlice";
+import { authUpdateProfile, authChangePassword } from "../../store/authSlice";
 import "./ProfilePage.css";
 
 export default function ProfilePage() {
@@ -22,12 +22,12 @@ export default function ProfilePage() {
   }, [user]);
 
   const submitProfile = () => {
-    dispatch(updateProfile({ username }));
+    dispatch(authUpdateProfile({ username }));
   };
 
   const submitPassword = () => {
     if (!oldPassword || !newPassword || newPassword !== newPassword2) return;
-    dispatch(changePassword({ oldPassword, newPassword }));
+    dispatch(authChangePassword({ oldPassword, newPassword }));
   };
 
   if (!user) {

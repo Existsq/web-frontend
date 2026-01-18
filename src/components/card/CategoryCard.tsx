@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Card, Button } from 'react-bootstrap';
 import type { CategoryCardProps } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../store/store';
-import { addService } from '../../store/requestsSlice';
+import { addCpiCategory } from '../../store/requestsSlice';
 import './CategoryCard.css';
 
 function CategoryCard({ category }: CategoryCardProps) {
@@ -27,7 +27,7 @@ function CategoryCard({ category }: CategoryCardProps) {
 
     setIsAdding(true);
     try {
-      await dispatch(addService(category.id)).unwrap();
+      await dispatch(addCpiCategory(category.id)).unwrap();
     } catch (error) {
       console.error('Failed to add category:', error);
     } finally {

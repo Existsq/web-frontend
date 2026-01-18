@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { login } from "../../store/authSlice";
-import { loadDraft } from "../../store/requestsSlice";
+import { authLogin } from "../../store/authSlice";
+import { loadCpiDraft } from "../../store/requestsSlice";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
@@ -17,13 +17,13 @@ export default function LoginForm() {
   useEffect(() => {
     if (user) {
       // Обновляем корзину после входа
-      dispatch(loadDraft());
+      dispatch(loadCpiDraft());
       navigate("/"); // перенаправляем на главную
     }
   }, [user, navigate, dispatch]);
 
   const submit = () => {
-    dispatch(login({ username, password }));
+    dispatch(authLogin({ username, password }));
   };
 
   return (

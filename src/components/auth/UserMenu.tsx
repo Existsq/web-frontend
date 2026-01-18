@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../../store/store";
-import { logoutAsync } from "../../store/authSlice";
+import { authLogout } from "../../store/authSlice";
 import "./UserMenu.css";
 
 export const UserMenu = () => {
@@ -31,7 +31,7 @@ export const UserMenu = () => {
         {user.username}
       </Link>
       <button
-          onClick={() => dispatch(logoutAsync())}
+          onClick={() => dispatch(authLogout())}
         className="user-login-btn"
       >
           Выйти

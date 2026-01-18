@@ -23,8 +23,9 @@ const initialState: RequestsState = {
   error: null,
 };
 
-export const loadDraft = createAsyncThunk(
-  "requests/loadDraft",
+// Загрузка черновика расчета CPI
+export const loadCpiDraft = createAsyncThunk(
+  "cpi/loadDraft",
   async () => {
     try {
       const infoResponse = await api.api.getDraftInfo();
@@ -34,14 +35,15 @@ export const loadDraft = createAsyncThunk(
       }
       const draftResponse = await api.api.getById(info.draftId);
       return { info, draft: draftResponse.data };
-    } catch (error) {
+    } catch {
       return { info: null as DraftInfoDTO | null, draft: null as CalculateCpiDTO | null };
     }
   }
 );
 
-export const addService = createAsyncThunk(
-  "requests/addService",
+// Добавление категории в расчет CPI
+export const addCpiCategory = createAsyncThunk(
+  "cpi/addCategory",
   async (categoryId: string | number) => {
     await api.api.addCategoryToDraft(Number(categoryId));
     const infoResponse = await api.api.getDraftInfo();
@@ -54,8 +56,9 @@ export const addService = createAsyncThunk(
   }
 );
 
-export const changeDraftItemQuantity = createAsyncThunk(
-  "requests/changeDraftItemQuantity",
+// Обновление суммы расходов для категории в расчете CPI
+export const updateCpiExpense = createAsyncThunk(
+  "cpi/updateExpense",
   async (params: { cpiId: string | number; categoryId: string | number; amount: number }) => {
     const response = await api.api.update2(
       Number(params.cpiId),
@@ -73,8 +76,9 @@ export const changeDraftItemQuantity = createAsyncThunk(
   }
 );
 
-export const deleteDraftItem = createAsyncThunk(
-  "requests/deleteDraftItem",
+// Удаление категории из расчета CPI
+export const removeCpiCategory = createAsyncThunk(
+  "cpi/removeCategory",
   async (params: { cpiId: string | number; categoryId: string | number }, { rejectWithValue }) => {
     try {
       // Сначала получаем текущий черновик, чтобы проверить количество категорий
@@ -109,7 +113,7 @@ export const deleteDraftItem = createAsyncThunk(
       try {
         const infoResponse = await api.api.getDraftInfo();
         info = infoResponse.data;
-      } catch (error) {
+      } catch {
         // Если черновик был удален (404), это нормально
         console.log("Draft info not found after deletion, draft may be empty");
       }
@@ -126,8 +130,12 @@ export const deleteDraftItem = createAsyncThunk(
       }
       
       return { draft, info };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message || "Не удалось удалить категорию");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as { response?: { data?: { message?: string } } })?.response?.data?.message 
+        || "Не удалось удалить категорию";
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -152,8 +160,9 @@ const callAsyncService = async (requestId: number) => {
   }
 };
 
-export const confirmDraftThunk = createAsyncThunk(
-  "requests/confirmDraft",
+// Оформление расчета CPI (преобразование черновика в заявку)
+export const submitCpiCalculation = createAsyncThunk(
+  "cpi/submitCalculation",
   async (draftId: string | number) => {
     const response = await api.api.formDraft(Number(draftId));
     const requestData = response.data;
@@ -170,17 +179,18 @@ export const confirmDraftThunk = createAsyncThunk(
   }
 );
 
-export const loadRequest = createAsyncThunk(
-  "requests/loadRequest",
+// Загрузка расчета CPI по ID
+export const loadCpiCalculation = createAsyncThunk(
+  "cpi/loadCalculation",
   async (requestId: string | number) => {
     const response = await api.api.getById(Number(requestId));
     return response.data;
   }
 );
 
-// Завершить или отклонить заявку (только для модераторов)
-export const denyOrCompleteRequest = createAsyncThunk(
-  "requests/denyOrComplete",
+// Одобрение или отклонение расчета CPI модератором
+export const approveCpiCalculation = createAsyncThunk(
+  "cpi/approveCalculation",
   async (params: { requestId: string | number; approve: boolean }) => {
     const response = await api.api.denyOrComplete(
       Number(params.requestId),
@@ -196,12 +206,12 @@ const requestsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(loadDraft.pending, (state) => {
+      .addCase(loadCpiDraft.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(
-        loadDraft.fulfilled,
+        loadCpiDraft.fulfilled,
         (
           state,
           action: PayloadAction<{
@@ -215,19 +225,19 @@ const requestsSlice = createSlice({
           state.hasDraft = !!action.payload.info;
         }
       )
-      .addCase(loadDraft.rejected, (state, action) => {
+      .addCase(loadCpiDraft.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Не удалось загрузить черновик";
         state.draftInfo = null;
         state.currentDraft = null;
         state.hasDraft = false;
       })
-      .addCase(addService.pending, (state) => {
+      .addCase(addCpiCategory.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(
-        addService.fulfilled,
+        addCpiCategory.fulfilled,
         (
           state,
           action: PayloadAction<{
@@ -241,12 +251,12 @@ const requestsSlice = createSlice({
           state.hasDraft = !!action.payload.info;
         }
       )
-      .addCase(addService.rejected, (state, action) => {
+      .addCase(addCpiCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Не удалось добавить категорию";
       })
       .addCase(
-        changeDraftItemQuantity.fulfilled,
+        updateCpiExpense.fulfilled,
         (state, action: PayloadAction<CalculateCpiDTO>) => {
           const updatedRequest = action.payload;
           
@@ -266,12 +276,12 @@ const requestsSlice = createSlice({
           }
         }
       )
-      .addCase(deleteDraftItem.pending, (state) => {
+      .addCase(removeCpiCategory.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(
-        deleteDraftItem.fulfilled,
+        removeCpiCategory.fulfilled,
         (
           state,
           action: PayloadAction<{
@@ -308,42 +318,42 @@ const requestsSlice = createSlice({
           }
         }
       )
-      .addCase(deleteDraftItem.rejected, (state, action) => {
+      .addCase(removeCpiCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Не удалось удалить категорию";
       })
-      .addCase(confirmDraftThunk.fulfilled, (state, action: PayloadAction<CalculateCpiDTO>) => {
+      .addCase(submitCpiCalculation.fulfilled, (state, action: PayloadAction<CalculateCpiDTO>) => {
         state.currentRequest = action.payload;
         state.currentDraft = null;
         state.draftInfo = null;
         state.hasDraft = false;
       })
-      .addCase(loadRequest.pending, (state) => {
+      .addCase(loadCpiCalculation.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(loadRequest.fulfilled, (state, action: PayloadAction<CalculateCpiDTO>) => {
+      .addCase(loadCpiCalculation.fulfilled, (state, action: PayloadAction<CalculateCpiDTO>) => {
         state.loading = false;
         state.currentRequest = action.payload;
       })
-      .addCase(loadRequest.rejected, (state, action) => {
+      .addCase(loadCpiCalculation.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Не удалось загрузить заявку";
+        state.error = action.error.message || "Не удалось загрузить расчет";
       })
-      .addCase(denyOrCompleteRequest.pending, (state) => {
+      .addCase(approveCpiCalculation.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(denyOrCompleteRequest.fulfilled, (state, action: PayloadAction<CalculateCpiDTO>) => {
+      .addCase(approveCpiCalculation.fulfilled, (state, action: PayloadAction<CalculateCpiDTO>) => {
         state.loading = false;
-        // Обновляем текущую заявку после завершения/отклонения
+        // Обновляем текущий расчет после одобрения/отклонения
         if (state.currentRequest && state.currentRequest.id === action.payload.id) {
           state.currentRequest = action.payload;
         }
       })
-      .addCase(denyOrCompleteRequest.rejected, (state, action) => {
+      .addCase(approveCpiCalculation.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Не удалось завершить/отклонить заявку";
+        state.error = action.error.message || "Не удалось одобрить/отклонить расчет";
       })
       .addCase(logout, () => initialState);
   },

@@ -4,7 +4,7 @@ import { Container, Card, Form, Row, Col, Button } from "react-bootstrap";
 import Header from "../../components/layout/Header";
 import { useAppSelector, useAppDispatch } from "../../store/store";
 import { api } from "../../api";
-import { denyOrCompleteRequest } from "../../store/requestsSlice";
+import { approveCpiCalculation } from "../../store/requestsSlice";
 import type { CalculateCpiDTO } from "../../api";
 import "./UserRequestsPage.css";
 
@@ -70,8 +70,8 @@ export default function UserRequestsPage() {
 
   // Фильтры: для модераторов - по дате формирования, для обычных пользователей - по дате создания
   const today = new Date();
-  const [formedFrom, setFormedFrom] = useState<string>("");
-  const [formedTo, setFormedTo] = useState<string>("");
+  const [formedFrom, setFormedFrom] = useState<string>(formatDateForInput(today));
+  const [formedTo, setFormedTo] = useState<string>(formatDateForInput(today));
   const [dateFrom, setDateFrom] = useState<string>(formatDateForInput(today));
   const [dateTo, setDateTo] = useState<string>(formatDateForInput(today));
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -210,7 +210,7 @@ export default function UserRequestsPage() {
 
   const handleModerateRequest = async (requestId: number, approve: boolean) => {
     try {
-      await dispatch(denyOrCompleteRequest({ requestId, approve })).unwrap();
+      await dispatch(approveCpiCalculation({ requestId, approve })).unwrap();
       // После успешного изменения статуса сразу обновляем список
       // (для модераторов поллинг продолжит обновлять данные каждые 2.5 секунды)
       await loadRequests(false);
